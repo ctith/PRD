@@ -6,7 +6,7 @@
 ![Type](https://img.shields.io/badge/type-Agentic%20AI%20product-purple)
 ![Author](https://img.shields.io/badge/author-Caroline%20Tith-darkred)
 
-> *Built during Le Wagon AI Product Builder — June 2026*
+> *Built during Le Wagon, AI Product Builder — June 2026*
 
 ---
 
@@ -28,9 +28,10 @@
 14. [Manipulation Taxonomy](#14-manipulation-taxonomy)
 15. [System Prompt](#15-system-prompt)
 16. [Constraints](#16-constraints)
-17. [Out of Scope](#17-out-of-scope)
-18. [Future Evolution](#18-future-evolution)
-19. [Learnings](#19-learnings)
+17. [Tests](#17-tests)
+18. [Out of Scope](#18-out-of-scope)
+19. [Future Evolution](#19-future-evolution)
+20. [Learnings](#20-learnings)
 
 ---
 
@@ -457,7 +458,51 @@ Retourner uniquement le JSON brut.
 
 ---
 
-## 17. Out of Scope
+## 17. Tests
+Classification des sites [d'infopreneurs](https://lacour-avocats.com/expertises/infoprenariat/)
+
+### IA / Consultant IA / Automatisation
+
+- [DecisionIA](https://decisionia.com/bootcamp-consultant-ia-430449/)
+- [Revolia](https://formation.revolia.pro/inscription-masterclass-ia-consultant)
+- [Mastery IA pro](https://www.mastery-ia-pro.fr/sommet?el=wc&utm_source=wc)
+- [Catalystacademy](https://catalystacademy.ai)
+- [ProActive academy](https://proactiveacademy.fr/lp-ia-generative/)
+- [Success IA academy](https://www.success-ia-academy.com/)
+- [Mastery DDA IAS](https://www.mastery-dda-ias.com/)
+- [Mister IA](https://www.mister-ia.com/formations-particuliers)
+- [NAIO agency](https://inscription.naiomagency.com/aut)
+- [SMS AI System](https://book.flexxable.com/optin?utm_source=SCALING)
+
+### Business / Marketing / Coaching
+
+- [Envergure](https://go.envergure-media.com/recrutement)
+- [Alegria](https://www.alegria.group/)
+- [BryanRGT](https://www.bryanrgt-coaching.com/webinaire-fb-3)
+- [Kevin Hanot](https://www.kevinhanot.com/)
+- [Jodie Cavalie](https://academy.jodycavalie.com/)
+- [Richissime](https://coachings.richissime.net/lm/roadmap-personnalisee/)
+- [Amal Castel](https://www.academiepsr.com/)
+- [Boring business](https://www.boringbusiness.fr/)
+
+### Finance / Trading / Reprise d'entreprise
+
+- [ParadoxMastermind](https://www.paradox-mastermind.com/live)
+- [Equity mastermind](https://www.equitymastermind.fr/)
+- [Tom Crosshill](https://www.indexmasterclass.com/webinar-registration)
+
+### Immobilier
+
+- [KretzClub](https://www.kretzclub.com/landing-page)
+
+### Outils / Produits IA
+
+- [MyKreator](https://mykreator.ai/acces)
+- [Hyperentrepreneur](https://hyperentrepreneur.ai/70-ai-specialists-for-claude)
+
+---
+
+## 18. Out of Scope
 
 - Audio or voice transcription analysis
 - Direct integration with email clients or messaging apps
@@ -469,7 +514,7 @@ Retourner uniquement le JSON brut.
 
 ---
 
-## 18. Future Evolution
+## 19. Future Evolution
 
 ### V1 — Dropshipping Detector (next sprint)
 - 3 additional taxonomy entries (#16 #17 #18)
@@ -496,7 +541,7 @@ Retourner uniquement le JSON brut.
 
 ---
 
-## 19. Learnings
+## 20. Learnings
 
 *To be completed after Le Wagon demo day — June 5, 2026.*
 
