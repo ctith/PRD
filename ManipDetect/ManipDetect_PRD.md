@@ -831,14 +831,11 @@ Two elements:
 
 ## Author
 
-**Caroline Tith** — Enterprise Architect & AI Product Builder
-
-TOGAF Foundation & Practitioner (2026) | 8 years in data governance & BI transformation
-
-Île-de-France, France
+**Caroline Tith** — Enterprise Architect, Data & AI Specialist
 
 [LinkedIn](https://linkedin.com/in/caroline-tith) · [Email](mailto:caroline.tith@hotmail.com)
 
+*ManipDetect — Le Wagon, AI Product Builder batch#1 — June 2026*
+
 ---
 
-*Built with: n8n · Airtable · Softr · Claude API · Le Wagon AI Product Builder Program*
