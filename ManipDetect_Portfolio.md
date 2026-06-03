@@ -510,10 +510,12 @@ Retourner uniquement le JSON brut.
 ## Author
 
 **Caroline Tith** — Enterprise Architect & AI Product Builder
+
 TOGAF Foundation & Practitioner (2026) | 8 years in data governance & BI transformation
+
 Île-de-France, France
 
-[LinkedIn](https://linkedin.com/in/carolinetith) · [Email](mailto:caroline.tith@hotmail.com)
+[LinkedIn](https://linkedin.com/in/caroline-tith) · [Email](mailto:caroline.tith@hotmail.com)
 
 ---
 
