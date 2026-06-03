@@ -157,7 +157,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "{\"model\": \"gpt-4o\", \"max_tokens\": 2000, \"temperature\": 0.2, \"messages\": [{\"role\": \"system\", \"content\": \"You are an expert analyst in rhetoric and the psychology of persuasion.\\n\\nYour role is to analyse a text or the content of a web page and identify the manipulation techniques present.\\n\\nINSTRUCTIONS:\\n1. Read the submitted text carefully.\\n2. Identify each passage that matches a technique in the taxonomy.\\n3. The same technique can appear multiple times.\\n4. A passage can combine several techniques — flag this.\\n5. Do NOT diagnose the author of the text — analyse the text only.\\n6. Assess the overall intensity: low (1-2 techniques), moderate (3-5), high (6+) or systemic (combined and repeated techniques).\\n7. If no technique is detected, say so clearly.\\n8. Be pedagogical, not alarmist.\\n\\nRETURN ONLY valid JSON in this exact structure:\\n{\\n  \\\"score_global\\\": <integer>,\\n  \\\"intensite\\\": \\\"<low|moderate|high|systemic>\\\",\\n  \\\"techniques\\\": [\\n    {\\n      \\\"nom\\\": \\\"<exact technique name from taxonomy>\\\",\\n      \\\"extrait\\\": \\\"<exact passage from the text>\\\",\\n      \\\"explication\\\": \\\"<why this is this technique>\\\",\\n      \\\"suggestion\\\": \\\"<how to respond or position yourself>\\\"\\n    }\\n  ],\\n  \\\"synthese\\\": \\\"<2-3 sentences summarising the overall rhetorical profile>\\\"\\n}\\n\\nDO NOT add any text before or after the JSON. Return raw JSON only.\"}, {\"role\": \"user\", \"content\": \"=Here is the taxonomy of manipulation techniques:\\\\n\\\\n{{ $('Fetch Taxonomy').all().map(r => '- ' + (r.json.fields.Name || r.json.fields.Nom) + ': ' + (r.json.fields.Definition || r.json.fields.Definition) + ' | Signals: ' + (r.json.fields.Signals || r.json.fields.Signaux)).join('\\\\n') }}\\\\n\\\\nText to analyse:\\\\n\\\\n{{ $('Prepare Text').first().json.text_to_analyse }}\"}]}",
+        "body": "{\"model\": \"gpt-4o\", \"max_tokens\": 2000, \"temperature\": 0.2, \"messages\": [{\"role\": \"system\", \"content\": \"You are an expert analyst in rhetoric and the psychology of persuasion.\\n\\nYour role is to analyse a text or the content of a web page and identify the manipulation techniques present.\\n\\nINSTRUCTIONS:\\n1. Read the submitted text carefully.\\n2. Identify each passage that matches a technique in the taxonomy.\\n3. The same technique can appear multiple times.\\n4. A passage can combine several techniques — flag this.\\n5. Do NOT diagnose the author of the text — analyse the text only.\\n6. Do NOT calculate score_global or intensite — leave them as 0 and \\\"tbd\\\". They will be calculated independently.\\n7. If no technique is detected, return an empty techniques array.\\n8. Be pedagogical, not alarmist.\\n\\nRETURN ONLY valid JSON in this exact structure:\\n{\\n  \\\"score_global\\\": 0,\\n  \\\"intensite\\\": \\\"tbd\\\",\\n  \\\"techniques\\\": [\\n    {\\n      \\\"nom\\\": \\\"<exact technique name from taxonomy>\\\",\\n      \\\"extrait\\\": \\\"<exact passage from the text>\\\",\\n      \\\"explication\\\": \\\"<why this is this technique>\\\",\\n      \\\"suggestion\\\": \\\"<how to respond or position yourself>\\\"\\n    }\\n  ],\\n  \\\"synthese\\\": \\\"<2-3 sentences summarising the overall rhetorical profile>\\\"\\n}\\n\\nDO NOT add any text before or after the JSON. Return raw JSON only.\"}, {\"role\": \"user\", \"content\": \"=Here is the taxonomy of manipulation techniques:\\n\\n{{ $('Fetch Taxonomy').all().map(r => '- ' + (r.json.fields.Name || r.json.fields.Nom) + ': ' + (r.json.fields.Definition || r.json.fields.Definition) + ' | Signals: ' + (r.json.fields.Signals || r.json.fields.Signaux)).join('\\\\n') }}\\n\\nText to analyse:\\n\\n{{ $('Prepare Text').first().json.text_to_analyse }}\"}]}",
         "options": {
           "timeout": 60000
         }
@@ -173,10 +173,10 @@
     },
     {
       "parameters": {
-        "jsCode": "// Parse the LLM JSON response and clean it if needed\nconst llmOutput = $('LLM Analysis').first().json;\nconst rawContent = llmOutput.choices[0].message.content;\n\n// Strip markdown code fences if LLM added them despite instructions\nconst cleaned = rawContent.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch(e) {\n  // Fallback if JSON is still malformed\n  parsed = {\n    score_global: 0,\n    intensite: 'low',\n    techniques: [],\n    synthese: 'Analysis could not be parsed. Please try again with a shorter text.'\n  };\n}\n\nreturn [{ json: parsed }];"
+        "jsCode": "const llmOutput = $('LLM Analysis').first().json;\nconst rawContent = llmOutput.choices[0].message.content;\n\n// Clean markdown fences if present\nconst cleaned = rawContent\n  .replace(/```json\\n?/g, '')\n  .replace(/```\\n?/g, '')\n  .trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch(e) {\n  return [{ json: {\n    score_global: 0,\n    intensite: 'none',\n    techniques: [],\n    synthese: 'Analysis could not be parsed. Please try again with a shorter text.',\n    score_detail: { total_occurrences: 0, distinct_techniques: 0, combined_passages: 0 }\n  }}];\n}\n\n// ── INDEPENDENT SCORE CALCULATION ─────────────────\nconst techniques = parsed.techniques || [];\n\n// Count distinct technique names\nconst distinctNames = new Set(techniques.map(t => t.nom));\nconst score = distinctNames.size;\n\n// Calculate intensity from score\nlet intensite;\nif (score === 0)      intensite = 'none';\nelse if (score <= 2)  intensite = 'low';\nelse if (score <= 5)  intensite = 'moderate';\nelse if (score <= 9)  intensite = 'high';\nelse                  intensite = 'systemic';\n\n// Detect combined passages (same excerpt, multiple techniques)\nconst excerpts = techniques.map(t => t.extrait);\nconst duplicateExcerpts = excerpts.filter(\n  (e, i) => excerpts.indexOf(e) !== i\n).length;\n\n// Upgrade to systemic if many combined passages\nif (duplicateExcerpts >= 2 && score >= 3) {\n  intensite = 'systemic';\n}\n\n// Override LLM self-score with calculated values\nparsed.score_global = score;\nparsed.intensite = intensite;\nparsed.score_detail = {\n  total_occurrences: techniques.length,\n  distinct_techniques: score,\n  combined_passages: duplicateExcerpts\n};\n// ──────────────────────────────────────────────────\n\nreturn [{ json: parsed }];"
       },
       "id": "wd-node-parse",
-      "name": "Parse JSON",
+      "name": "Parse & Score",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -219,9 +219,9 @@
     },
     {
       "parameters": {
-        "content": "## ⚙️ SETUP REQUIRED\n\nBefore activating this workflow, replace these 3 things:\n\n**1. Airtable — node `Fetch Taxonomy`**\n- Replace `YOUR_AIRTABLE_BASE_ID` with your base ID (format: appXXXXXXXX)\n- Create an Airtable credential in n8n (Settings > Credentials > New > Airtable Token API)\n- Scope required: data.records:read\n\n**2. OpenAI API Key — node `LLM Analysis`**\n- Replace `YOUR_OPENAI_API_KEY` with your real key from platform.openai.com\n- To use Claude instead: change URL to https://api.anthropic.com/v1/messages and update body format (see guide)\n\n**3. Lovable**\n- Copy the Webhook URL (visible when you open the Webhook node)\n- Paste it in Lovable replacing PLACEHOLDER_N8N_WEBHOOK_URL\n\n---\n**Test payload (use in Postman or Hoppscotch):**\nPOST to your webhook URL with:\n{\n  \"input_type\": \"text\",\n  \"content\": \"Only 3 spots left. Offer expires at midnight. After everything I have done for you, I hope you won't let me down.\"\n}\n\n**Test URL payload:**\n{\n  \"input_type\": \"url\",\n  \"content\": \"https://coachings.richissime.net/lm/roadmap-personnalisee/\"\n}",
-        "height": 520,
-        "width": 420,
+        "content": "## ⚙️ SETUP REQUIRED\n\nBefore activating this workflow, replace these 3 things:\n\n**1. Airtable — node `Fetch Taxonomy`**\n- Replace YOUR_AIRTABLE_BASE_ID with your base ID (format: appXXXXXXXX)\n- Create an Airtable credential in n8n (Settings > Credentials > New > Airtable Token API)\n- Scope required: data.records:read\n\n**2. OpenAI API Key — node `LLM Analysis`**\n- Replace YOUR_OPENAI_API_KEY with your real key from platform.openai.com\n- To use Claude instead: change URL to https://api.anthropic.com/v1/messages and update body format\n\n**3. Lovable**\n- Copy the Webhook URL (visible when you open the Webhook node)\n- Paste it in Lovable replacing PLACEHOLDER_N8N_WEBHOOK_URL\n\n---\nScore calculation note:\nscore_global and intensite are calculated independently in the\nParse & Score node by counting distinct techniques in the array.\nThe LLM is instructed NOT to calculate these values itself.\n\nTest payload:\n{\n  \"input_type\": \"text\",\n  \"content\": \"Only 3 spots left. Offer expires at midnight. After everything I have done for you, I hope you won't let me down.\"\n}\n\nTest URL:\n{\n  \"input_type\": \"url\",\n  \"content\": \"https://coachings.richissime.net/lm/roadmap-personnalisee/\"\n}",
+        "height": 560,
+        "width": 440,
         "color": 5
       },
       "id": "wd-node-note",
@@ -230,7 +230,7 @@
       "typeVersion": 1,
       "position": [
         240,
-        600
+        620
       ]
     }
   ],
@@ -312,14 +312,14 @@
       "main": [
         [
           {
-            "node": "Parse JSON",
+            "node": "Parse & Score",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Parse JSON": {
+    "Parse & Score": {
       "main": [
         [
           {
@@ -338,7 +338,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "errorWorkflow": ""
   },
-  "versionId": "manipdetect-v1-0",
+  "versionId": "manipdetect-v1-1",
   "meta": {
     "templateCredsSetupCompleted": false
   },
