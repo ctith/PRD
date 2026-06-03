@@ -587,5 +587,10 @@ Commence par celles-ci — elles sont connues pour leur copywriting agressif :
 
 ---
 
-*ManipDetect — Le Wagon AI Product Builder — Juin 2026*
-*Caroline Tith — caroline.tith@hotmail.com*
+**Caroline Tith** — Enterprise Architect, Data & AI Specialist
+
+[LinkedIn](https://linkedin.com/in/caroline-tith) · [Email](mailto:caroline.tith@hotmail.com)
+
+*ManipDetect — Le Wagon, AI Product Builder batch#1 — June 2026*
+
+---
