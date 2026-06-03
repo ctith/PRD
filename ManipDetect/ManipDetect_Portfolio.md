@@ -6,7 +6,7 @@
 ![Type](https://img.shields.io/badge/type-Agentic%20AI%20product-purple)
 ![Author](https://img.shields.io/badge/author-Caroline%20Tith-darkred)
 
-> *Built during Le Wagon AI Product Builder — June 2026*
+> *Built during Le Wagon, AI Product Builder — June 2026*
 
 ---
 
@@ -28,9 +28,10 @@
 14. [Manipulation Taxonomy](#14-manipulation-taxonomy)
 15. [System Prompt](#15-system-prompt)
 16. [Constraints](#16-constraints)
-17. [Out of Scope](#17-out-of-scope)
-18. [Future Evolution](#18-future-evolution)
-19. [Learnings](#19-learnings)
+17. [Tests](#17-tests)
+18. [Out of Scope](#18-out-of-scope)
+19. [Future Evolution](#19-future-evolution)
+20. [Learnings](#20-learnings)
 
 ---
 
@@ -403,6 +404,7 @@ The system prompt explicitly instructs the LLM to:
 
 ## 15. System Prompt
 
+### N8N prompt
 ```
 Tu es un analyste expert en rhétorique et psychologie de la persuasion.
 
@@ -444,6 +446,282 @@ NE PAS utiliser de balises markdown.
 Retourner uniquement le JSON brut.
 ```
 
+### Lovable prompt
+```
+Build a web app called ManipDetect — an AI-powered manipulation 
+detection tool that analyses text or landing page URLs and identifies 
+rhetorical manipulation techniques used by the author.
+
+---
+
+## BRANDING & DESIGN
+
+App name: ManipDetect
+Tagline: "Ce qu'on vous dit vraiment."
+Color palette:
+  - Background: #0F0F1A (very dark navy)
+  - Primary accent: #8B1A1A (deep red)
+  - Secondary accent: #2C3E7A (dark blue)
+  - Card background: #1A1A2E
+  - Text: #E8E8E8
+  - Muted text: #888888
+  - Success/low: #2A5E2A
+  - Warning/moderate: #7A5E1A
+  - Danger/high: #8B1A1A
+  - Critical/systemic: #4A0A0A
+
+Typography: Inter or system-ui, clean and readable.
+Overall aesthetic: dark, serious, analytical — like a security 
+audit tool, not a cheerful SaaS. Think intelligence report, 
+not marketing tool.
+
+---
+
+## APP STRUCTURE
+
+Single-page application with two states:
+1. INPUT STATE — the analysis form
+2. RESULTS STATE — the manipulation report
+
+---
+
+## STATE 1 — INPUT FORM
+
+### Layout
+Full-screen centered card on dark background.
+
+### Header (always visible)
+- Logo: a magnifying glass icon + "ManipDetect" in bold
+- Tagline below: "Détectez ce qu'on vous dit vraiment." 
+  in muted text
+
+### Input card
+Title: "Analysez un texte ou une page web"
+
+Two input options with a visual toggle or tabs:
+  TAB 1 — "Texte libre"
+    Large textarea (min 6 rows), placeholder:
+    "Collez ici un email, un contrat, un message, 
+     une description de formation..."
+    Character counter showing X/4000 characters
+    
+  TAB 2 — "URL à analyser"
+    Single text input, placeholder:
+    "https://exemple.com/landing-page"
+    Small note below: "Fonctionne sur la plupart des 
+    pages web publiques."
+
+Below both inputs:
+  Primary CTA button: "Analyser maintenant →"
+  Full width, deep red background, white text, 
+  rounded corners, hover effect
+
+Below the button, small muted text:
+  "🔒 Aucun texte n'est conservé — analyse en session 
+  uniquement. Conforme RGPD."
+
+### Example test URLs section (collapsible)
+A small "Tester avec des exemples →" toggle that reveals 
+a grid of clickable URL chips. When clicked, the URL 
+auto-fills the URL field. Organise them by category:
+
+Category "IA & Automatisation":
+- DecisionIA: https://decisionia.com/bootcamp-consultant-ia-430449/
+- Revolia: https://formation.revolia.pro/inscription-masterclass-ia-consultant
+- Mastery IA: https://www.mastery-ia-pro.fr/sommet?el=wc&utm_source=wc
+- Catalyst Academy: https://catalystacademy.ai
+- ProActive Academy: https://proactiveacademy.fr/lp-ia-generative/
+- Success IA: https://www.success-ia-academy.com/
+- Mastery DDA: https://www.mastery-dda-ias.com/
+- Mister IA: https://www.mister-ia.com/formations-particuliers
+- NAIO Agency: https://inscription.naiomagency.com/aut
+- SMS AI System: https://book.flexxable.com/optin?utm_source=SCALING
+
+Category "Business & Coaching":
+- Envergure: https://go.envergure-media.com/recrutement
+- Alegria: https://www.alegria.group/
+- BryanRGT: https://www.bryanrgt-coaching.com/webinaire-fb-3
+- Kevin Hanot: https://www.kevinhanot.com/
+- Jodie Cavalie: https://academy.jodycavalie.com/
+- Richissime: https://coachings.richissime.net/lm/roadmap-personnalisee/
+- Amal Castel: https://www.academiepsr.com/
+- Boring Business: https://www.boringbusiness.fr/
+
+Category "Finance & Trading":
+- Paradox Mastermind: https://www.paradox-mastermind.com/live
+- Equity Mastermind: https://www.equitymastermind.fr/
+- Tom Crosshill: https://www.indexmasterclass.com/webinar-registration
+
+Category "Immobilier":
+- KretzClub: https://www.kretzclub.com/landing-page
+
+Category "Outils IA":
+- MyKreator: https://mykreator.ai/acces
+- Hyperentrepreneur: https://hyperentrepreneur.ai/70-ai-specialists-for-claude
+
+---
+
+## LOADING STATE
+
+When the user clicks "Analyser maintenant":
+
+1. Button becomes disabled + shows spinner
+2. Full-screen animated loading overlay appears with:
+   - ManipDetect logo centered
+   - Rotating progress messages (cycle every 2 seconds):
+     "Lecture de la page en cours..."
+     "Extraction du contenu textuel..."
+     "Consultation de la taxonomie..."
+     "Analyse rhétorique en cours..."
+     "Identification des techniques..."
+     "Rédaction du rapport..."
+   - Subtle pulsing animation on the logo
+
+---
+
+## API CALL LOGIC
+
+On form submit, make a POST request to the n8n webhook:
+
+const WEBHOOK_URL = "PLACEHOLDER_N8N_WEBHOOK_URL";
+
+const payload = {
+  input_type: "text" | "url",    // based on active tab
+  content: textareaValue | urlValue,
+  timestamp: new Date().toISOString()
+};
+
+const response = await fetch(WEBHOOK_URL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload)
+});
+
+const data = await response.json();
+
+Expected response shape from n8n:
+{
+  "score_global": 7,
+  "intensite": "elevee",
+  "techniques": [
+    {
+      "nom": "Fausse urgence",
+      "extrait": "Il ne reste que 3 places disponibles",
+      "explication": "La limitation artificielle...",
+      "suggestion": "Vérifier si la rareté est réelle..."
+    }
+  ],
+  "synthese": "Cette page combine plusieurs techniques..."
+}
+
+Handle errors gracefully:
+- Network error: show error card with retry button
+- Timeout (>30s): show timeout message
+- Invalid JSON: show parsing error with retry
+
+---
+
+## STATE 2 — RESULTS PAGE
+
+### Back button
+Top left: "← Nouvelle analyse" — returns to input state 
+and clears everything
+
+### Results header card
+Dark card with:
+  Left side:
+    - Large number: score_global (e.g. "7")
+    - Label below: "techniques détectées sur 18"
+  Right side:
+    - Intensity badge (large pill):
+      faible → green background, "⚡ Faible"
+      moderee → yellow/amber background, "⚠️ Modérée"  
+      elevee → red background, "🔴 Élevée"
+      systemique → dark red + pulsing border, 
+                   "🚨 Systémique"
+    - If URL was analysed: show the URL in muted small text
+
+### Synthesis card
+Full-width card below header:
+  Label: "Synthèse de l'analyse"
+  Content: synthese field from API response
+  Italic, slightly larger text, muted border left accent
+
+### Techniques section
+Title: "Techniques identifiées" + count badge
+
+One card per technique in techniques array.
+Each card contains:
+  TOP ROW:
+    - Technique name in bold red: nom
+    - Small numbered badge (1, 2, 3...)
+  
+  EXCERPT BOX:
+    - Label: "Extrait détecté"
+    - Light background box with italic text: extrait
+    - Small quote icon on the left
+  
+  EXPLANATION:
+    - Label: "Pourquoi c'est cette technique"
+    - Body text: explication
+  
+  SUGGESTION BOX:
+    - Different background (dark blue tint)
+    - Label with icon: "💡 Comment répondre"
+    - Text: suggestion
+
+Cards animate in one by one with a subtle fade-up.
+
+### Empty state (if techniques array is empty)
+Green card:
+  ✅ "Aucune technique de manipulation détectée"
+  "Ce contenu ne présente pas de signaux rhétoriques 
+  problématiques identifiables."
+
+### Footer of results
+Two elements:
+  Left: "⚠️ Cette analyse est générée par IA. 
+         Elle peut contenir des erreurs."
+  Right: "Analyser un autre texte →" button
+
+---
+
+## MOBILE RESPONSIVENESS
+
+- Full mobile support
+- Touch-friendly tap targets (min 44px)
+- URL chips wrap gracefully on small screens
+- Technique cards stack vertically
+- Header score/badge stacks vertically on mobile
+
+---
+
+## ACCESSIBILITY
+
+- All form inputs have associated labels
+- Color is never the only indicator (always text label too)
+- Focus states visible on all interactive elements
+- Loading messages announced via aria-live region
+- Error messages descriptive and associated with inputs
+- Minimum contrast ratio 4.5:1 for all text
+
+---
+
+## ADDITIONAL NOTES
+
+- Use React with hooks (useState, useEffect)
+- No external routing needed — single page, two states
+- Store the webhook URL as a const at the top of the file 
+  so it's easy to replace
+- The "Tester avec des exemples" section is a nice-to-have 
+  but important for demo day — keep it
+- Add a small "?" tooltip on the intensity badge explaining 
+  what each level means
+- Do not use any mock data — always call the real webhook. 
+  If the webhook is not configured, show a clear 
+  "Configuration requise" message instead of fake results.
+```
+
 ---
 
 ## 16. Constraints
@@ -457,7 +735,51 @@ Retourner uniquement le JSON brut.
 
 ---
 
-## 17. Out of Scope
+## 17. Tests
+[Infopreneur website :](https://lacour-avocats.com/expertises/infoprenariat/)
+
+### IA / Consultant IA / Automatisation
+
+- [DecisionIA](https://decisionia.com/bootcamp-consultant-ia-430449/)
+- [Revolia](https://formation.revolia.pro/inscription-masterclass-ia-consultant)
+- [Mastery IA pro](https://www.mastery-ia-pro.fr/sommet?el=wc&utm_source=wc)
+- [Catalystacademy](https://catalystacademy.ai)
+- [ProActive academy](https://proactiveacademy.fr/lp-ia-generative/)
+- [Success IA academy](https://www.success-ia-academy.com/)
+- [Mastery DDA IAS](https://www.mastery-dda-ias.com/)
+- [Mister IA](https://www.mister-ia.com/formations-particuliers)
+- [NAIO agency](https://inscription.naiomagency.com/aut)
+- [SMS AI System](https://book.flexxable.com/optin?utm_source=SCALING)
+
+### Business / Marketing / Coaching
+
+- [Envergure](https://go.envergure-media.com/recrutement)
+- [Alegria](https://www.alegria.group/)
+- [BryanRGT](https://www.bryanrgt-coaching.com/webinaire-fb-3)
+- [Kevin Hanot](https://www.kevinhanot.com/)
+- [Jodie Cavalie](https://academy.jodycavalie.com/)
+- [Richissime](https://coachings.richissime.net/lm/roadmap-personnalisee/)
+- [Amal Castel](https://www.academiepsr.com/)
+- [Boring business](https://www.boringbusiness.fr/)
+
+### Finance / Trading / Reprise d'entreprise
+
+- [ParadoxMastermind](https://www.paradox-mastermind.com/live)
+- [Equity mastermind](https://www.equitymastermind.fr/)
+- [Tom Crosshill](https://www.indexmasterclass.com/webinar-registration)
+
+### Immobilier
+
+- [KretzClub](https://www.kretzclub.com/landing-page)
+
+### Outils / Produits IA
+
+- [MyKreator](https://mykreator.ai/acces)
+- [Hyperentrepreneur](https://hyperentrepreneur.ai/70-ai-specialists-for-claude)
+
+---
+
+## 18. Out of Scope
 
 - Audio or voice transcription analysis
 - Direct integration with email clients or messaging apps
@@ -469,7 +791,7 @@ Retourner uniquement le JSON brut.
 
 ---
 
-## 18. Future Evolution
+## 19. Future Evolution
 
 ### V1 — Dropshipping Detector (next sprint)
 - 3 additional taxonomy entries (#16 #17 #18)
@@ -496,7 +818,7 @@ Retourner uniquement le JSON brut.
 
 ---
 
-## 19. Learnings
+## 20. Learnings
 
 *To be completed after Le Wagon demo day — June 5, 2026.*
 
