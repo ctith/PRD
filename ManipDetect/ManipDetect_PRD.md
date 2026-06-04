@@ -815,8 +815,125 @@ Two elements:
 > - Clinical validation of the pattern detection model
 
 *This module will not be built without these conditions. Rigour is the condition of its value.*
+<!--
+INTÉGRATION
+-----------
+À coller dans ManipDetect_PRD.md, à l'intérieur de la section
+"## 19. Future Evolution", après le bloc "### V3 — Module Emprise...".
+Style aligné sur le reste du PRD (structure EN, termes métier FR, tables GitHub).
+Pensez aussi aux 3 petites mises à jour suggérées tout en bas de ce fichier.
+-->
+
+### V4 — Trust & Value Score (*Indice de Valeur Potentielle*)
+
+ManipDetect today answers a single question: *is this text manipulative?* But
+manipulation intensity alone is not a verdict on the **worth of the offer**. An
+aggressive sales page can sit on top of a genuinely serious product, and a calm,
+"clean" page can hide an empty one. Detecting rhetoric without weighing substance
+risks flagging good offers and clearing hollow ones.
+
+This evolution adds a **second, orthogonal axis**: a Trust / Potential-Value
+Score that runs in parallel to the manipulation score and is built from three
+indices.
+
+#### 1. Structural Transparency Index
+
+The baseline — the more transparent the offer, the more likely it is to be serious.
+
+| Criterion                  | Weight     | What to look for                                                      |
+| -------------------------- | ---------- | --------------------------------------------------------------------- |
+| Trainer identity           | High       | Full name, verifiable background, track record (LinkedIn, past projects) |
+| Publicly displayed price   | Very High  | Price visible without a form or a sales call                          |
+| Detailed curriculum        | High       | Module-by-module plan with precise learning objectives                |
+| Complete legal notices     | Medium     | Company name, address, SIRET, terms of sale (CGV)                     |
+| Refund conditions          | Medium     | Clearly stated, no booby-trapped asterisk                             |
+
+#### 2. Verifiable Social Proof Index
+
+Separate *surface* social proof (media logos, vague numbers) from proof that can
+actually be checked.
+
+| Criterion                | Weight     | What to look for                                                                          |
+| ------------------------ | ---------- | ----------------------------------------------------------------------------------------- |
+| Third-party reviews      | Very High  | Trustpilot, Google Reviews, Reddit — the tool could scrape these for an average rating    |
+| Named testimonials       | High       | Identifiable people with an active LinkedIn profile and a real photo                      |
+| Traceable alumni         | High       | The tool could search LinkedIn posts mentioning the training to see what alumni say after |
+| Visible community        | Medium     | Is there a public group, forum, or active Slack/Discord?                                   |
+
+#### 3. Substance vs. Promise Index
+
+The core of the evolution: quantify the **gap between what is promised and what is
+demonstrable**.
+
+| Criterion                  | Weight     | What to look for                                                                                         |
+| -------------------------- | ---------- | -------------------------------------------------------------------------------------------------------- |
+| Promise / Content ratio    | High       | Compare the count of *promises* ("you will become", "you will earn") to the count of concrete curriculum items |
+| Precise taught skill       | High       | An evaluable skill ("run a scoping workshop", "use Make") vs. a vague outcome ("success", "freedom")    |
+| Seller's business model    | Very High  | Does the seller earn from the activity they teach, or only from the training? Analyse site, domain history, legal notices |
+| Existence of free content  | Medium     | Quality free content (blog, YouTube) is a good predictor of paid-content value                          |
+
+#### Interpretation — the two-axis matrix
+
+Crossing the manipulation score with the value score turns a single number into an
+actual verdict:
+
+| Manipulation \ Value | **Low value**                       | **High value**                                  |
+| -------------------- | ----------------------------------- | ----------------------------------------------- |
+| **High manipulation**| 🚨 Red alert — predatory offer      | Aggressive marketing on a genuinely solid product |
+| **Low manipulation** | Bland / empty offer                 | ✅ Trustworthy                                  |
+
+This is the headline output: *high manipulation + low value* is the case the tool
+exists to catch; *high manipulation + high value* protects the user from dismissing
+a good product just because the copy is loud.
+
+#### Technical implementation
+
+This axis is a second branch alongside the manipulation LLM step (the same pattern
+as the V1 dropshipping branch), merged into a combined report:
+
+- **Targeted scraping** — fetch third-party reviews (Trustpilot), legal notices, and the curriculum page.
+- **Semantic analysis** — extend the existing LLM step to tag each sentence as *promise* vs. *content*, then compute the ratio.
+- **Data cross-referencing** — verify the trainer on LinkedIn, cross the domain/company name against public registries (INSEE / SIRENE), and reuse the WHOIS domain-age check already planned for V1.
+
+**Schema impact:** add an optional `valeur` block to the webhook response
+(`transparence`, `preuve_sociale`, `substance`, `score_confiance`, `verdict`)
+next to the existing `score_global` / `techniques` / `synthese`, so the front can
+render the two-axis verdict without breaking the current contract.
+
+#### Worked example (illustrative) — DecisionIA
+
+Applying the rubric to one of the test URLs, to show how the score reads. *Figures
+are illustrative and would be confirmed by the scraping/cross-referencing layer above.*
+
+- **Structural Transparency** — trainer identified, price publicly displayed, module-level curriculum, accessible legal notices → **High**
+- **Verifiable Social Proof** — visible community (YouTube, public Slack), findable reviews; on-page testimonials less nominative → **Medium–High**
+- **Substance vs. Promise** — precise skills taught (posture, sales, legal), an entrepreneurial track record and active free content, revenue not derived solely from the training → **High**
+
+**Verdict:** even if the page scores high on marketing intensity, the value axis is
+strong → it lands in the *"aggressive marketing, solid product"* quadrant rather
+than the red-alert quadrant.
 
 ---
+
+<!--
+AUTRES MISES À JOUR SUGGÉRÉES (rapides, hors section 19)
+
+1. Badge de statut (haut du fichier) :
+   remplacer "status-MVP in progress" par un lien vers la démo en ligne
+   → https://manipdetect.lovable.app  (et noter "MVP shipped").
+
+2. Section 7 (AI Use-Case) / Section 6 (Solution Concept) :
+   ajouter une phrase signalant la sortie sur DEUX axes
+   (manipulation score + value score) une fois V4 implémenté.
+
+3. Section 12 (Guardrails & Failsafes) :
+   ajouter un "Failsafe — Scrape blocked page" déjà implémenté :
+   si le scrape renvoie une page de vérification (Cloudflare / captcha /
+   contenu < 250 caractères), le workflow court-circuite l'agent et
+   demande à l'utilisateur de coller le texte visible, au lieu de
+   produire une analyse sur une page de blocage.
+-->
+
 
 ## 20. Learnings
 
