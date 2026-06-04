@@ -939,10 +939,21 @@ AUTRES MISES À JOUR SUGGÉRÉES (rapides, hors section 19)
 
 *To be completed after Le Wagon demo day — June 5, 2026.*
 
-- [ ] What unexpected challenges did you face, and how did you adapt?
-- [ ] Did you reach your P1 goals? If not, what stopped you?
+*On June 4, 2026*
+- [x] What unexpected challenges did you face, and how did you adapt?
+n8n workflow using Airtable database as memory took 1:53 to 2:35 as execution time, too much for a user.
+I had to create RAG with supabase from airtable data in order to speed up the execution time : it took 10 to 35 sec now. 
+      
+- [x] Did you reach your P1 goals? If not, what stopped you?
+I reach P1 goal by focusing on the MVP, which is a text to test. In n8n, I had to remove the webhook node to execute the workflow manually. It speeds up the tests.
+As P2, I focused on URL scraping, and had to insert a scenario when the website is asking a human verification, or has a pop-up blocking the scraping.
+      
 - [ ] What would you do differently in the next iteration?
+Due to the time constraint (1.5d to develop and to publish for the demo), I did not have the time to have a solid understanding of the product context.
+Nevertheless, using Lovable, Claude, Deepseek, Cursor, N8N chatbot helped a lot. I believe with only my brain, this project would have taken at least 1 week instead of 1 day to develop.
+
 - [ ] Which KPI targets were realistic? Which need adjustment?
+Unconsciouly, having an execution time > 1 min is not acceptable. I believe it's one of the KPI project.
 
 ---
 
