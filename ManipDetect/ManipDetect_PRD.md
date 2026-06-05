@@ -960,7 +960,7 @@ Wiring the front to a slow workflow and publishing it surfaced a third cluster, 
 - [x] What unexpected challenges did you face, and how did you adapt?
       
 *n8n workflow using Airtable database as memory took 1:53 to 2:35 as execution time, too much for a user.
-I had to create RAG with supabase from airtable data in order to speed up the execution time : it took 10 to 35 sec now. *
+I had to create RAG with supabase from airtable data in order to speed up the execution time : it took 10 to 35 sec now.*
       
 - [x] Did you reach your P1 goals? If not, what stopped you?
       
