@@ -7,7 +7,6 @@
 ![Type](https://img.shields.io/badge/type-Agentic%20AI%20product-purple)
 ![Author](https://img.shields.io/badge/author-Caroline%20Tith-darkred)
 
-> *Built during Le Wagon, AI Product Builder — June 2026*
 > **Live demo:** https://manipdetect.lovable.app
 
 ---
@@ -231,6 +230,31 @@ User input (text or URL) — Lovable front
 └──────────────────────────────────────────────────────┘
 ```
 
+### Architecture Diagram — Async job flow (client ↔ n8n)
+
+*Because the workflow can take ~90 seconds, the call is decoupled from the request/response cycle through a job row in Supabase.*
+
+```
+┌───────────────┐   1. enqueue (server fn)    ┌──────────────────────────────┐
+│    Lovable    │ ──────────────────────────► │  analysis_jobs (Supabase)    │
+│    client     │                             │  status: processing          │
+│               │                             │  RLS: deny-all to client/anon│
+└──────┬────────┘                             └───────────────┬──────────────┘
+       │                                                      │ 2. trigger webhook
+       │ 4. poll job (≤ 1 min 30)                             ▼
+       │    processing → done                       ┌───────────────────┐
+       │                                            │    n8n workflow   │
+       │                                            │  Jina + AI Agent  │
+       │                                            └─────────┬─────────┘
+       │                                                      │ 3. callback
+       │                                                      │   header: N8N_WEBHOOK_SECRET
+       │                                                      │   updates only if "processing"
+       ▼                                                      ▼
+   render report  ◄───────── job row updated: status = done + result JSON
+```
+
+Server (service role) owns the job row; the client never writes it. The callback authenticates with `N8N_WEBHOOK_SECRET` and refuses to touch a job that is already finished. Timeouts are aligned to ~1 min 30 on both server and client.
+
 ### Architecture Diagram — Taxonomy indexing pipeline (setup)
 
 ```
@@ -282,12 +306,22 @@ URL (e-commerce)
 
 | Area                     | POC approach                              | Production change                                                                  | Why                                                                                         |
 | ------------------------ | ----------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| **Scale**                | Single n8n webhook, synchronous           | Queue-based (Bull, Redis) + async processing                                       | Webhook timeouts at >10 concurrent users; queue decouples load                              |
+| **Scale**                | Async job pattern (`analysis_jobs` + n8n callback + client polling, ~90s) | Managed queue (Bull/Redis) + horizontal workers + dead-letter for failed jobs      | The job row already decouples long AI work from the request; a real queue adds retries and back-pressure at volume |
 | **AI layer**             | Single agent, one model (Claude) + OpenAI embeddings | Model fallback chain (primary → secondary) + response caching for identical inputs | Avoid single point of failure; caching cuts cost by ~60% on repeated URLs                   |
 | **Retrieval**            | Supabase vector store, manual re-index    | Scheduled re-embedding on taxonomy change + retrieval-quality eval set             | Keep the taxonomy in the vector store in sync with the Airtable source of truth             |
 | **Cost control**         | No limits                                 | Rate limiting per user/IP, input truncation at 4,000 tokens, request batching      | Unbounded LLM calls become expensive at scale; one long document can cost $0.10+            |
 | **Privacy & compliance** | Session-only, no storage of user input    | Encrypted audit log (no PII), explicit RGPD consent flow, DPA with AI providers    | Any storage of personal communication content triggers GDPR obligations                     |
-| **Security**             | Open webhook                              | Auth token on webhook, input sanitisation (XSS, prompt injection), secrets in env  | Open webhooks are trivially abused; injected prompts in scraped content are a real vector   |
+| **Security**             | Deny-all RLS on `analysis_jobs`; callback gated by `N8N_WEBHOOK_SECRET` | + webhook rate-limiting, input sanitisation (XSS, prompt injection), secret rotation, pen-test | Locking the table and authenticating the callback closes the obvious holes; the rest hardens against abuse at scale |
+
+### Security model (implemented)
+
+The async job flow is the main attack surface, so it is locked down by default:
+
+- **Deny-all RLS on `analysis_jobs`.** Client and anonymous roles cannot read or write any job row. Only the server's **service role** creates and reads jobs — the browser never touches the table directly.
+- **Authenticated callback.** The n8n → app callback must present the shared secret `N8N_WEBHOOK_SECRET`; requests without it are rejected. The callback also **only updates jobs still in `processing`**, so a finished result cannot be replayed or overwritten.
+- **Secrets server-side only.** The webhook URL, the callback secret, and all AI provider keys live in environment variables / Supabase secrets — never in client code.
+
+*Lesson carried from the build: lock every new table deny-first, and treat any public callback as untrusted until it proves the shared secret.*
 
 ---
 
@@ -364,7 +398,13 @@ If a scraped URL returns a verification/challenge page (Cloudflare, captcha, "ve
 
 *Why:* otherwise the agent analyses the verification page itself and produces a confident but meaningless "standard" analysis — the worst possible failure for a trust tool. This also avoids wasting an LLM call.
 
-### Failsafe 2 — Graceful degradation
+### Failsafe 2 — Error / 404 page detection (implemented)
+
+A scraped URL can also return a *broken* page rather than a *blocked* one: the target site's own SSR error or 404 fallback (e.g. "This page didn't load", "Page not found"). The scrape succeeds, but the extracted "content" is an error page with no rhetorical material. The workflow detects this case (very short body + tell-tale strings such as `didn't load`, `404`, `not found`, `try again`) and returns a clear message — *"This page could not be read — it returned an error. Try another URL or paste the visible text."* — instead of analysing noise.
+
+*Why:* the upstream site can be broken independently of ManipDetect; analysing its error page produced confident-but-empty reports and surfaced 500s on the server function. This complements Failsafe 1: *blocked* (bot wall) and *broken* (error page) are different failures, both caught before the agent.
+
+### Failsafe 3 — Graceful degradation
 
 If the agent call fails (timeout, API error, invalid JSON after parse), the user sees:
 
@@ -949,25 +989,6 @@ Applying the rubric to one of the test URLs, to show how the score reads. *Figur
 
 **Verdict:** even if the page scores high on marketing intensity, the value axis is strong → it lands in the *"aggressive marketing, solid product"* quadrant rather than the red-alert quadrant.
 
-<!--
-AUTRES MISES À JOUR SUGGÉRÉES (rapides, hors section 19)
-
-1. Badge de statut (haut du fichier) :
-   remplacer "status-MVP in progress" par un lien vers la démo en ligne
-   → https://manipdetect.lovable.app  (et noter "MVP shipped").
-
-2. Section 7 (AI Use-Case) / Section 6 (Solution Concept) :
-   ajouter une phrase signalant la sortie sur DEUX axes
-   (manipulation score + value score) une fois V4 implémenté.
-
-3. Section 12 (Guardrails & Failsafes) :
-   ajouter un "Failsafe — Scrape blocked page" déjà implémenté :
-   si le scrape renvoie une page de vérification (Cloudflare / captcha /
-   contenu < 250 caractères), le workflow court-circuite l'agent et
-   demande à l'utilisateur de coller le texte visible, au lieu de
-   produire une analyse sur une page de blocage.
--->
-
 ---
 
 ## 20. Learnings
@@ -982,9 +1003,28 @@ Concrete issues surfaced while wiring the agentic workflow — each one is now a
 - **Garbage-in, confident-out.** Scraped Cloudflare/verification pages were analysed as if they were real content, producing a plausible but meaningless report. Fix: a blocked-page failsafe that detects challenge signatures / too-short output and asks the user to paste the text. *Lesson: for a trust tool, a wrong-but-confident answer is the worst outcome — fail loud, not silent.*
 - **Architecture shift.** Moved from "stuff the taxonomy into the prompt" to **RAG retrieval** over a Supabase vector store, and from **Softr to Lovable** for the frontend — more control over the report UI and the API call.
 
-### Demo-day reflection
+#### Local dev & front ↔ n8n integration (Cursor session)
 
-*To be completed after Le Wagon demo day — June 5, 2026.*
+Running the Lovable-exported project locally and wiring it to n8n surfaced a second cluster of issues:
+
+- **npm blocked on Windows (PowerShell).** `npm run dev` failed because PowerShell's execution policy blocks `npm.ps1`. Fix: run `npm.cmd` (or, once, `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`) and `npm install` first — `node_modules` was missing. *Lesson: a dev command that fails on Windows is often the shell, not the project.*
+- **CORS on the webhook call.** The React app called the n8n webhook directly from the browser; n8n sends no CORS headers for `localhost`, so the browser blocked the request behind a generic "can't reach the server" error. Fix: route the call through a **TanStack Start server function** (server-side proxy) instead of `fetch` from the client. *Lesson: third-party webhooks belong server-side, not in the browser.*
+- **Test vs production webhook URL.** `/webhook-test/...` only accepts one call after clicking "Listen for test event"; normal use needs the production URL (`/webhook/...`) with the workflow toggled **active**. Stored as `N8N_WEBHOOK_URL` in `.env` (gitignored). *Lesson: ship against the production webhook; keep the test URL for manual debugging only.*
+- **Empty 200 response.** The webhook returned HTTP 200 with an empty body → JSON parse failed ("invalid response"). Fix: set the Webhook to respond **When Last Node Finishes** with a *Respond to Webhook* node, and harden the client to accept the common n8n shapes (array, `json`, `body`). *Lesson: 200 ≠ a usable body — validate the payload, not just the status code.*
+- **Stale timeout / unrestarted dev server.** A "timeout > 30s" message kept appearing after the limit had already been raised — the Vite dev server was still running old code. Fix: move the timeout to an env var (`ANALYSIS_TIMEOUT_MS`), restart Vite, hard-refresh. *Lesson: after editing server config, restart and hard-refresh before trusting an error message.*
+- **OpenAI Responses API output shape.** The JSON parser kept hitting its fallback because it read `choices[0].message.content`, but the OpenAI **Responses** API returns the JSON inside `content[].text` (`type: "output_text"`), and the node emitted several assistant messages. Fix: read every `output_text` block, take the last non-empty one, and use `$('node').all()` rather than `.first()`. *Lesson: match the parser to the exact provider/API shape — "OpenAI output" is not a single format.*
+
+#### Production hardening & sync (Lovable session)
+
+Wiring the front to a slow workflow and publishing it surfaced a third cluster, this time about latency, security and tooling:
+
+- **Async job pattern for slow analyses.** n8n can take ~90 seconds (scrape + several AI calls) — longer than a comfortable synchronous request. The client now reads n8n's response as soon as it arrives and otherwise polls an `analysis_jobs` row in Supabase (status `processing` → done), with timeouts raised to **1 min 30** on both server and client to match real latency. *Lesson: size the timeout to the actual workflow latency, and decouple long AI work from the request/response cycle.*
+- **Deny-all RLS on the jobs table.** Added an explicit **deny-all** RLS policy on `analysis_jobs` so client/anon roles cannot read or write jobs; only the server's service role manages them. *Lesson: lock down every new table by default — deny first, then grant narrowly to the server.*
+- **Authenticated callback.** The n8n → app callback now **requires `N8N_WEBHOOK_SECRET`** and only updates jobs still in `processing` status. *Lesson: a public callback must authenticate its caller and refuse to mutate already-finished work (no replay or overwrite).*
+- **Error page mistaken for content.** A test URL (a broken TanStack/Lovable site) served its own SSR fallback ("This page didn't load"); n8n scraped that error HTML, so there was nothing rhetorical to analyse — and the server function surfaced 500s. *Lesson: the upstream site can be broken too — detect when extracted "content" is actually an error/404 page (very little text, tell-tale strings) and tell the user, instead of analysing noise.* This extends the blocked-page failsafe to upstream SSR failures.
+- **Lovable ↔ GitHub are not auto-synced.** Edits committed directly on GitHub (removing a test URL) didn't appear in the app: Lovable reads its own file state and won't pull external commits unless two-way sync is enabled or a manual pull is triggered. *Lesson: pick a single source of truth for edits, or enable bidirectional sync — don't edit both ends and expect convergence.*
+
+### Demo-day reflection
 
 - [x] What unexpected challenges did you face, and how did you adapt?
       
@@ -1013,5 +1053,4 @@ Nevertheless, using Lovable, Claude, Deepseek, Cursor, N8N chatbot helped a lot.
 
 [LinkedIn](https://linkedin.com/in/caroline-tith) · [Email](mailto:caroline.tith@hotmail.com)
 
-*ManipDetect — Le Wagon, AI Product Builder batch#1 — June 2026*
-
+---
