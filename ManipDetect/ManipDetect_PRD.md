@@ -1,12 +1,14 @@
 # ManipDetect 🔍
-### AI-powered manipulation detection in text & e-commerce pages
 
-![Status](https://img.shields.io/badge/status-MVP%20in%20progress-orange)
-![Stack](https://img.shields.io/badge/stack-n8n%20%7C%20Airtable%20%7C%20Softr%20%7C%20LLM-blue)
+### AI-powered manipulation detection in text & landing pages
+
+![Status](https://img.shields.io/badge/status-MVP%20shipped-success)
+![Stack](https://img.shields.io/badge/stack-Lovable%20%7C%20n8n%20%7C%20Claude%20%7C%20Supabase%20%7C%20Airtable%20%7C%20Jina-blue)
 ![Type](https://img.shields.io/badge/type-Agentic%20AI%20product-purple)
 ![Author](https://img.shields.io/badge/author-Caroline%20Tith-darkred)
 
 > *Built during Le Wagon, AI Product Builder — June 2026*
+> **Live demo:** https://manipdetect.lovable.app
 
 ---
 
@@ -47,14 +49,15 @@ Most people are exposed to rhetorical manipulation in their daily communications
 
 ### Primary users
 
-| Profile | Context | Pain |
-|---|---|---|
-| Employee in HR conflict | Receives an ambiguous email from management | Cannot name what feels wrong |
-| Freelance consultant | Reviewing a client contract before signing | Unsure if pressure is legitimate |
-| Online shopper | Browsing an e-commerce site with aggressive pricing | Cannot tell if urgency is real |
-| Consumer protection advocate | Auditing landing pages | No scalable tool for systematic analysis |
+| Profile                      | Context                                             | Pain                                     |
+| ---------------------------- | --------------------------------------------------- | ---------------------------------------- |
+| Employee in HR conflict      | Receives an ambiguous email from management         | Cannot name what feels wrong             |
+| Freelance consultant         | Reviewing a client contract before signing          | Unsure if pressure is legitimate         |
+| Online shopper               | Browsing an e-commerce site with aggressive pricing | Cannot tell if urgency is real           |
+| Consumer protection advocate | Auditing landing pages                              | No scalable tool for systematic analysis |
 
 ### Secondary users
+
 - Journalists and fact-checkers auditing political or commercial communication
 - Legal professionals reviewing contractual language
 - Coaches and therapists helping clients decode difficult relationships
@@ -67,7 +70,7 @@ Most people are exposed to rhetorical manipulation in their daily communications
 - **EU AI Act (2024)** and **European Accessibility Act (June 2025)** are pushing transparency requirements across digital products — consumer protection tools are entering a regulatory tailwind
 - **Explosion of AI-generated copywriting** on landing pages and e-commerce sites has industrialised manipulation at scale — the problem is growing faster than human literacy
 - **LLMs are now capable** of nuanced semantic analysis with structured JSON output — this product was not technically feasible at this quality level 24 months ago
-- **No-code automation platforms** (n8n, Softr, Airtable) make it possible to ship an agentic MVP in 2 days without infrastructure overhead
+- **No-code automation platforms** (n8n, Lovable, Supabase, Airtable) make it possible to ship an agentic MVP in days without infrastructure overhead
 - **Dropshipping fraud** is a documented and growing consumer harm in France and Europe — the extension to e-commerce analysis addresses a real and underserved market
 
 ---
@@ -81,6 +84,7 @@ For individual users: transform "something feels off" into "this message uses cu
 For e-commerce: transform "I'm not sure I trust this site" into "this product is listed at 189€ here and found at 12€ on AliExpress — here is the link."
 
 **Current workarounds:**
+
 - Reading books on rhetoric and persuasion (hours of investment, no real-time utility)
 - Asking a trusted friend or coach (unavailable at the moment of need)
 - Using generic ChatGPT prompts (no structured taxonomy, no interface, no report)
@@ -92,33 +96,35 @@ For e-commerce: transform "I'm not sure I trust this site" into "this product is
 
 ## 5. Market Scan
 
-| Tool | What it does well | What it misses | Relevant constraint |
-|---|---|---|---|
-| **Grammarly** | Style, grammar, tone detection | No rhetorical or manipulation analysis | Paid, no API for custom analysis |
-| **Crystal Knows** | Personality profiling of the sender | Analyses the person, not the text | GDPR concerns, B2B focus |
-| **Generic tone analyzers** | Positive / negative sentiment | Far too superficial, no taxonomy | No actionable output |
-| **ChatGPT (free prompt)** | Can analyse if well-prompted | No dedicated interface, no taxonomy, inconsistent output | No structured report, UX friction |
-| **No tool identified** | — | **Dedicated manipulation detection with structured taxonomy + agentic multi-source analysis + e-commerce price comparison** | Gap confirmed |
+| Tool                       | What it does well                   | What it misses                                                                                                              | Relevant constraint               |
+| -------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| **Grammarly**              | Style, grammar, tone detection      | No rhetorical or manipulation analysis                                                                                      | Paid, no API for custom analysis  |
+| **Crystal Knows**          | Personality profiling of the sender | Analyses the person, not the text                                                                                           | GDPR concerns, B2B focus          |
+| **Generic tone analyzers** | Positive / negative sentiment       | Far too superficial, no taxonomy                                                                                            | No actionable output              |
+| **ChatGPT (free prompt)**  | Can analyse if well-prompted        | No dedicated interface, no taxonomy, inconsistent output                                                                    | No structured report, UX friction |
+| **No tool identified**     | —                                   | **Dedicated manipulation detection with structured taxonomy + agentic multi-source analysis + e-commerce price comparison** | Gap confirmed                     |
 
-**Conclusion:** the gap is real and unoccupied. The closest competitor is a well-crafted ChatGPT prompt — our differentiation is the taxonomy, the agentic workflow, and the e-commerce price comparison layer.
+**Conclusion:** the gap is real and unoccupied. The closest competitor is a well-crafted ChatGPT prompt — our differentiation is the taxonomy, the agentic RAG workflow, and the e-commerce price comparison layer.
 
 ---
 
 ## 6. Solution Concept
 
-### MVP (2 days — Le Wagon)
+### MVP (shipped — Le Wagon)
 
-The user pastes a text OR submits a URL. The agent:
-1. Detects input type (text vs URL)
-2. Scrapes the page if URL
-3. Fetches the manipulation taxonomy from Airtable
-4. Calls the LLM with the text and taxonomy
-5. Parses the structured JSON output
-6. Returns an annotated report: techniques detected, excerpts, explanations, response suggestions
+The user pastes a text **or** submits a URL in the Lovable web app. The n8n agent then:
+
+1. Detects input type automatically (regex on the content — no manual "type" flag needed)
+2. Scrapes the page via **Jina AI Reader** if it is a URL
+3. Guards against blocked pages (Cloudflare / captcha / empty scrape) and, if blocked, asks the user to paste the visible text instead of analysing a verification page
+4. Runs an **AI Agent (Claude)** that retrieves the relevant manipulation taxonomy from a **Supabase vector store** (RAG) and analyses the text
+5. Parses and validates the structured JSON output
+6. Returns an annotated report to Lovable: techniques detected, excerpts, explanations, response suggestions
 
 ### V1 — Dropshipping extension (post-MVP)
 
 For e-commerce URLs, the agent additionally:
+
 1. Extracts the product name and keywords
 2. Searches AliExpress / Temu for equivalent products
 3. Checks domain age via WHOIS API
@@ -131,35 +137,40 @@ For e-commerce URLs, the agent additionally:
 
 ### What the AI step does
 
-The LLM receives the user's text + the 18-technique taxonomy fetched from Airtable, and returns a structured JSON containing:
+The analysis runs inside an **n8n LangChain Agent** powered by **Claude (Anthropic)**. Rather than receiving the full taxonomy stuffed into the prompt, the agent **retrieves** the relevant techniques on demand from a **Supabase vector store** (taxonomy embedded with OpenAI embeddings) — a retrieval-augmented generation (RAG) pattern. It returns a structured JSON containing:
+
 - Number of distinct techniques detected
-- Global intensity score (`low | moderate | high | systemic`)
+- Global intensity score (`faible | moderee | elevee | systemique`)
 - Per-technique breakdown: name, exact excerpt, explanation, response suggestion
 - 2–3 sentence synthesis of the rhetorical profile
+
+A short-term conversational memory (buffer window) lets the user follow up on a previous analysis in the same session.
 
 ### Where it sits in the golden path
 
 ```
-User input (text or URL)
+User input (text or URL) — Lovable front
         ↓
-[n8n] Type detection + optional scraping
+[n8n] Regex type detection → Jina Reader scraping (for URLs)
         ↓
-[Airtable] Taxonomy fetch
+[n8n] Blocked-page failsafe (else: ask user to paste text)
         ↓
-[LLM] ← CORE AI STEP — semantic analysis + JSON generation
+[AI AGENT] Claude  ← CORE AI STEP
+   + RAG retrieval of the taxonomy from Supabase vector store
+   + session memory
         ↓
-[n8n] JSON parsing + HTML report formatting
+[n8n] Robust JSON parse + schema validation
         ↓
-[Softr] Structured report displayed to user
+[Lovable] Structured report displayed to user
 ```
 
 ### Strategic Role Statement
 
-> Without the AI step, ManipDetect is an empty form. The LLM holds the analytical capability that would take a trained rhetorician 30–45 minutes to produce manually — the product delivers it in under 10 seconds, at zero marginal cost per analysis. At scale, no human review layer could match this throughput. **AI is not a feature — it is the product.**
+> Without the AI step, ManipDetect is an empty form. The agent holds the analytical capability that would take a trained rhetorician 30–45 minutes to produce manually — the product delivers it in seconds, at near-zero marginal cost per analysis. At scale, no human review layer could match this throughput. **AI is not a feature — it is the product.**
 
 ### User value unlocked
 
-- **Time saved:** 30–45 minutes of manual analysis → under 10 seconds
+- **Time saved:** 30–45 minutes of manual analysis → seconds
 - **Cognitive relief:** eliminates the need for prior expertise in rhetoric or psychology
 - **Actionability:** each technique comes with a concrete response suggestion
 - **Confidence:** structured report replaces vague intuition with named, explained patterns
@@ -170,49 +181,68 @@ User input (text or URL)
 
 ### POC Stack
 
-| Layer | Tool | Why chosen for POC | Known constraints |
-|---|---|---|---|
-| **Frontend** | Softr | Zero-code UI builder on Airtable, form + results page in hours | Limited custom styling, Airtable dependency |
-| **Orchestration** | n8n | Visual workflow builder, native HTTP + JSON + LLM nodes, self-hostable | Rate limits on cloud free tier, 5s timeout on webhooks |
-| **AI layer** | Claude 3.5 Sonnet or GPT-4o | Multimodal, strong structured JSON output, reliable instruction following | Cost ~$0.003–0.008 per analysis, token limits on very long texts |
-| **Taxonomy DB** | Airtable | No-code, API-ready, editable by non-developers | 5 req/s rate limit on free tier |
-| **Scraping** | n8n HTTP node | Built-in, no additional service needed | Blocked by Cloudflare / JS-heavy pages |
-| **Hosting** | n8n Cloud / self-hosted | Fast setup for POC | Self-host required for production |
+| Layer                 | Tool                                   | Why chosen for POC                                                                                  | Known constraints                                                  |
+| --------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| **Frontend**          | Lovable (React)                        | AI-generated React UI, instant public deploy; replaced Softr for full control of the report UI and the webhook call | Free-tier prompt limits; styling driven by prompt                  |
+| **Orchestration**     | n8n                                    | Visual agentic workflow, native LangChain + HTTP + Code nodes, self-hostable                        | Webhook timeout, rate limits on cloud free tier                    |
+| **AI agent**          | n8n LangChain Agent + Claude (Anthropic) | Tool-using agent: retrieves taxonomy, then analyses; strong structured JSON output                  | Cost per call; added latency from retrieval                        |
+| **Retrieval / vectors** | Supabase (Postgres + pgvector)        | Stores the embedded taxonomy; queried by the agent as a RAG tool                                    | Requires an embedding/indexing pipeline; pgvector setup            |
+| **Embeddings**        | OpenAI embeddings                      | Index the taxonomy and embed agent queries                                                          | Second AI-provider dependency; cost (mostly one-time at indexing)  |
+| **Knowledge source**  | Airtable                               | Editable source of truth for the 18-technique taxonomy; synced into the vector store                | 5 req/s rate limit on free tier                                    |
+| **Scraping**          | Jina AI Reader (`r.jina.ai`)           | Turns a URL into clean text with a single GET; handles many JS-heavy pages the raw HTTP node could not | Cloudflare *challenge* pages still blocked → paste fallback; rate limits without an API key |
+| **Hosting**           | Lovable (front) + n8n Cloud / self-host (workflow) | Fast public deploy for demo day                                                                     | Self-host required for production                                  |
 
-### Architecture Diagram — POC
+### Architecture Diagram — POC (runtime)
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                     USER (Softr)                    │
-│         Paste text  OR  Submit URL                  │
-└──────────────────────┬──────────────────────────────┘
-                       │ Webhook POST
-                       ▼
-┌─────────────────────────────────────────────────────┐
-│                    n8n WORKFLOW                      │
-│                                                     │
-│  [1] Receive webhook                                │
-│  [2] IF node: text or URL?                          │
-│       └─ URL → HTTP GET → extract body text         │
-│       └─ text → pass through                        │
-│  [3] HTTP GET → Airtable API → fetch taxonomy       │
-│  [4] Format prompt: text + taxonomy                 │
-│  [5] POST → LLM API (Claude / GPT-4o)               │
-│         Input:  { system_prompt, user_text,         │
-│                   taxonomy_json }                   │
-│         Output: { score, intensite,                 │
-│                   techniques[], synthese }          │
-│  [6] Parse JSON output                              │
-│  [7] Format HTML report                             │
-│  [8] Webhook response → Softr                       │
-└──────────────────────┬──────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────┐
-│                SOFTR RESULTS PAGE                   │
-│  Score | Intensity badge | Synthesis                │
-│  Per-technique: excerpt + explanation + suggestion  │
-└─────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│              FRONTEND — Lovable (React)                │
+│               manipdetect.lovable.app                  │
+│             Paste text   OR   submit URL               │
+└─────────────────────────┬──────────────────────────────┘
+                          │ POST { input_type, content, timestamp }
+                          ▼
+┌──────────────────────────────────────────────────────┐
+│                     n8n WORKFLOW                       │
+│  [1] Webhook (responds via Respond node)               │
+│  [2] IF "Text or URL?" — regex ^https?:// on content   │
+│        ├─ URL  → Jina Reader (r.jina.ai) → clean text  │
+│        └─ text → passthrough                           │
+│  [3] Merge → Prepare Text (normalise, truncate 4 000)  │
+│  [4] IF "Scrape OK?" — blocked-page failsafe           │
+│        ├─ blocked → Respond: "please paste the text"   │
+│        └─ ok → AI Agent                                │
+│                                                        │
+│   ┌──────────── AI AGENT (LangChain) ──────────────┐   │
+│   │  LLM:    Claude (Anthropic)                     │   │
+│   │  Memory: buffer window (session follow-ups)     │   │
+│   │  Tool:   Supabase Vector Store (RAG)  ◄─────────┼───┼─ taxonomy
+│   │          embeddings: OpenAI                     │   │  retrieval
+│   └─────────────────────┬───────────────────────────┘   │
+│  [5] Parse JSON (robust: reads direct input, strips md, │
+│      validates score_global/intensite/techniques/...)   │
+│  [6] Respond to Webhook (CORS headers, JSON)            │
+└─────────────────────────┬──────────────────────────────┘
+                          │ { score_global, intensite, techniques[], synthese }
+                          ▼
+┌──────────────────────────────────────────────────────┐
+│             Lovable results view (2 states)            │
+│   Score | Intensity badge | Synthesis | technique cards │
+└──────────────────────────────────────────────────────┘
+```
+
+### Architecture Diagram — Taxonomy indexing pipeline (setup)
+
+```
+Airtable  (Manipulation_Taxonomy = source of truth)
+   │  Search records  (batched: Loop Over Items + Wait)
+   ▼
+Default Data Loader  ──►  Character Text Splitter
+   │
+   ▼
+OpenAI Embeddings  ──►  Supabase Vector Store (pgvector)
+                              ▲
+                              └── queried at runtime by the AI Agent (RAG tool)
 ```
 
 ### Architecture Diagram — V1 Dropshipping Extension
@@ -221,13 +251,13 @@ User input (text or URL)
 URL (e-commerce)
         │
         ▼
-[n8n] Scrape page
+[n8n] Jina Reader scrape
         │
    ┌────┴────────────────────────────────────┐
    │                                         │
    ▼                                         ▼
-[LLM] Manipulation analysis          [HTTP] AliExpress search
-[Airtable] Taxonomy fetch            [WHOIS API] Domain age
+[AI Agent] Manipulation analysis     [HTTP] AliExpress search
+[Supabase] RAG taxonomy retrieval    [WHOIS API] Domain age
 [JSON] Technique report              [HTTP] Temu search
    │                                         │
    └────────────────┬────────────────────────┘
@@ -241,7 +271,7 @@ URL (e-commerce)
           + Verdict + AliExpress link
                     │
                     ▼
-              Softr report
+              Lovable report
 ```
 
 ---
@@ -250,13 +280,14 @@ URL (e-commerce)
 
 *Not built now — thinking ahead to avoid painful architectural decisions later.*
 
-| Area | POC approach | Production change | Why |
-|---|---|---|---|
-| **Scale** | Single n8n webhook, synchronous | Queue-based (Bull, Redis) + async processing | Webhook timeouts at >10 concurrent users; queue decouples load |
-| **AI layer** | Single LLM call, one model | Fallback chain (primary → secondary model) + response caching for identical inputs | Avoid single point of failure; caching cuts cost by ~60% on repeated URLs |
-| **Cost control** | No limits | Rate limiting per user/IP, input truncation at 4,000 tokens, request batching | Unbounded LLM calls become expensive at scale; one long document can cost $0.10+ |
-| **Privacy & compliance** | Session-only, no storage | Encrypted audit log (no PII), explicit RGPD consent flow, DPA with LLM provider | Any storage of personal communication content triggers GDPR obligations |
-| **Security** | Open webhook | Auth token on webhook, input sanitisation (XSS, injection), secrets in env vars | Open webhooks are trivially abused; injected prompts in user input are a real attack vector |
+| Area                     | POC approach                              | Production change                                                                  | Why                                                                                         |
+| ------------------------ | ----------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| **Scale**                | Single n8n webhook, synchronous           | Queue-based (Bull, Redis) + async processing                                       | Webhook timeouts at >10 concurrent users; queue decouples load                              |
+| **AI layer**             | Single agent, one model (Claude) + OpenAI embeddings | Model fallback chain (primary → secondary) + response caching for identical inputs | Avoid single point of failure; caching cuts cost by ~60% on repeated URLs                   |
+| **Retrieval**            | Supabase vector store, manual re-index    | Scheduled re-embedding on taxonomy change + retrieval-quality eval set             | Keep the taxonomy in the vector store in sync with the Airtable source of truth             |
+| **Cost control**         | No limits                                 | Rate limiting per user/IP, input truncation at 4,000 tokens, request batching      | Unbounded LLM calls become expensive at scale; one long document can cost $0.10+            |
+| **Privacy & compliance** | Session-only, no storage of user input    | Encrypted audit log (no PII), explicit RGPD consent flow, DPA with AI providers    | Any storage of personal communication content triggers GDPR obligations                     |
+| **Security**             | Open webhook                              | Auth token on webhook, input sanitisation (XSS, prompt injection), secrets in env  | Open webhooks are trivially abused; injected prompts in scraped content are a real vector   |
 
 ---
 
@@ -266,23 +297,25 @@ ManipDetect is designed to be usable by people with visual, motor, and cognitive
 
 ### Applied practices
 
-| WCAG Principle | Implementation in ManipDetect |
-|---|---|
-| **Perceivable** | Intensity verdicts use colour + icon + text label (never colour alone — critical for colourblind users) |
-| **Perceivable** | All technique excerpts are displayed as readable text, not images |
-| **Operable** | Form submission and results navigation fully keyboard-accessible (Tab, Enter, Escape) |
-| **Operable** | Touch targets (Submit button, technique cards) minimum 44×44px |
-| **Understandable** | Error messages describe the problem and the fix ("Please paste text or a valid URL") |
-| **Understandable** | LLM output is prompted to use plain, clear language — benefits all users, especially those with cognitive disabilities |
-| **Robust** | Semantic HTML for all Softr components; ARIA labels on interactive elements |
+| WCAG Principle     | Implementation in ManipDetect                                                                                          |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| **Perceivable**    | Intensity verdicts use colour + icon + text label (never colour alone — critical for colourblind users)                |
+| **Perceivable**    | All technique excerpts are displayed as readable text, not images                                                      |
+| **Operable**       | Form submission and results navigation fully keyboard-accessible (Tab, Enter, Escape)                                  |
+| **Operable**       | Touch targets (Submit button, technique cards) minimum 44×44px                                                         |
+| **Understandable** | Error messages describe the problem and the fix ("Please paste text or a valid URL")                                   |
+| **Understandable** | The agent is prompted to use plain, clear language — benefits all users, especially those with cognitive disabilities  |
+| **Robust**         | Semantic HTML for all Lovable/React components; ARIA labels on interactive elements                                    |
 
 ### Colour contrast
+
 - Intensity badges: minimum 4.5:1 contrast ratio against background (WCAG AA)
 - Body text: 16px minimum, no light font weights
 - Never use red/green without a complementary icon or label
 
 ### Audit plan
-Run Lighthouse accessibility audit (Chrome DevTools) on the Softr output before demo day. Target score: 90+.
+
+Run a Lighthouse accessibility audit (Chrome DevTools) on the Lovable app before demo day. Target score: 90+.
 
 ---
 
@@ -290,45 +323,59 @@ Run Lighthouse accessibility audit (Chrome DevTools) on the Softr output before 
 
 ### Product KPIs
 
-| KPI | What it measures | Target (demo day) | How to capture |
-|---|---|---|---|
-| **End-to-end completion rate** | % of users who submit text/URL AND view the full report | > 80% | n8n log: webhook received vs report rendered |
-| **Analysis accuracy (spot-check)** | % of detected techniques judged correct by a human reviewer on a sample of 10 analyses | > 75% | Manual review rubric on a test set of 10 diverse inputs |
-| **Time to insight** | Time from form submission to report display | < 12 seconds p50 | n8n execution log timestamps |
+| KPI                                | What it measures                                                                       | Target (demo day) | How to capture                                          |
+| ---------------------------------- | -------------------------------------------------------------------------------------- | ----------------- | ------------------------------------------------------- |
+| **End-to-end completion rate**     | % of users who submit text/URL AND view the full report                                | > 80%             | n8n log: webhook received vs report rendered            |
+| **Analysis accuracy (spot-check)** | % of detected techniques judged correct by a human reviewer on a sample of 10 analyses | > 75%             | Manual review rubric on a test set of 10 diverse inputs |
+| **Time to insight**                | Time from form submission to report display                                            | < 15 seconds p50  | n8n execution log timestamps                            |
 
 ### AI-Specific KPIs
 
-| KPI | Definition in this context | Target | Data source |
-|---|---|---|---|
-| **AI task success rate** | % of LLM calls that return valid, parseable JSON with at least one technique or a clear "no technique detected" | > 90% | n8n error log + JSON parse step |
-| **Latency p50 / p95** | Median and worst-case LLM response time | p50 < 8s / p95 < 20s | n8n execution timestamps |
-| **Cost per analysis** | Estimated USD cost per LLM call (input + output tokens) | < $0.01 per analysis | LLM provider dashboard (Anthropic / OpenAI usage) |
+| KPI                      | Definition in this context                                                                                      | Target               | Data source                                       |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------- |
+| **AI task success rate** | % of agent runs that return valid, parseable JSON with the required keys                                        | > 90%                | n8n error log + JSON parse step                   |
+| **Scrape success rate**  | % of URL submissions where Jina returns usable text (not a blocked/verification page)                           | > 70%                | "Scrape OK?" branch counter in n8n                |
+| **Latency p50 / p95**    | Median and worst-case end-to-end time (scrape + retrieval + agent)                                              | p50 < 10s / p95 < 25s | n8n execution timestamps                          |
+| **Cost per analysis**    | Estimated USD cost per run (Claude tokens + OpenAI embedding queries)                                           | < $0.02 per analysis | Anthropic + OpenAI usage dashboards               |
 
 ---
 
 ## 12. Guardrails & Failsafes
 
 ### Guardrail 1 — Input validation
-Before hitting the LLM, n8n validates:
+
+Before hitting the agent, n8n validates:
+
 - Input is not empty
-- Text input is between 10 and 4,000 characters (truncation above limit with user warning)
-- URL input matches a basic URL pattern
+- Text input is truncated above 4,000 characters (control cost and latency)
+- URL input is detected by regex (`^https?://`) on the content — the workflow auto-detects type instead of trusting a client-supplied flag
 
-*Why:* empty or malformed inputs generate expensive, useless LLM calls and confusing error states.
+*Why:* empty or malformed inputs generate expensive, useless calls and confusing error states.
 
-### Guardrail 2 — Output format check
-After the LLM responds, n8n checks that the output is valid JSON and contains the required keys (`score_global`, `intensite`, `techniques`, `synthese`). If not, it retries once before returning a fallback message.
+### Guardrail 2 — Output format check (robust parser)
 
-*Why:* LLMs occasionally deviate from the expected schema; a single retry resolves ~80% of format failures.
+The "Parse JSON from AI Agent" node reads the agent's **direct input** (not a hard-coded node name), strips any markdown code fences, parses the JSON, and verifies the required keys (`score_global`, `intensite`, `techniques`, `synthese`). On failure it returns a clean fallback instead of a broken report.
 
-### Failsafe — Graceful degradation
-If the LLM call fails after one retry (timeout, API error, invalid JSON on second attempt), the user sees:
+*Why:* LLMs occasionally wrap JSON in ```` ```json ```` fences or deviate from the schema; and referencing the agent by a hard-coded name silently breaks the moment the node is renamed.
+
+### Failsafe 1 — Blocked-page detection (implemented)
+
+If a scraped URL returns a verification/challenge page (Cloudflare, captcha, "verify you are human", or a body shorter than ~250 characters), the workflow **short-circuits before the agent** and responds with a message asking the user to paste the visible text of the page.
+
+*Why:* otherwise the agent analyses the verification page itself and produces a confident but meaningless "standard" analysis — the worst possible failure for a trust tool. This also avoids wasting an LLM call.
+
+### Failsafe 2 — Graceful degradation
+
+If the agent call fails (timeout, API error, invalid JSON after parse), the user sees:
+
 > *"Analysis temporarily unavailable. Your text was not stored. Please try again in a moment."*
 
 No partial or broken report is ever shown.
 
 ### Editorial guardrail — Prompt constraint
-The system prompt explicitly instructs the LLM to:
+
+The system prompt explicitly instructs the agent to:
+
 - Analyse the **text**, not the **person** who wrote it
 - Never use diagnostic language ("this person is manipulative")
 - Be pedagogical, not alarmist
@@ -339,80 +386,84 @@ The system prompt explicitly instructs the LLM to:
 
 ### Golden Path
 
-> A user pastes an email they received from their manager. In under 10 seconds, they see a report identifying 2 techniques (false urgency + culpabilisation), the exact excerpts highlighted, an explanation of each mechanism, and a suggested response strategy.
+> A user pastes an email they received from their manager. In seconds, they see a report identifying 2 techniques (false urgency + culpabilisation), the exact excerpts highlighted, an explanation of each mechanism, and a suggested response strategy.
 
 ### P1 — Must-have for demo day
 
-| # | Task | Done? |
-|---|---|---|
-| P1-1 | Softr form: text input + URL input + submit button + RGPD mention | ☐ |
-| P1-2 | n8n webhook receives input, detects type (text vs URL) | ☐ |
-| P1-3 | n8n fetches taxonomy from Airtable (18 techniques) | ☐ |
-| P1-4 | n8n calls LLM with system prompt + text + taxonomy, receives JSON | ☐ |
-| P1-5 | Softr results page: score, intensity badge, synthesis, per-technique cards | ☐ |
+| #    | Task                                                                              | Done? |
+| ---- | --------------------------------------------------------------------------------- | ----- |
+| P1-1 | Lovable form: text input + URL input + submit + RGPD mention                      | ✅     |
+| P1-2 | n8n webhook receives input, auto-detects type (regex) and scrapes URLs via Jina   | ✅     |
+| P1-3 | Taxonomy indexed into Supabase vector store; agent retrieves it via RAG           | ✅     |
+| P1-4 | n8n AI Agent (Claude) returns validated structured JSON                           | ✅     |
+| P1-5 | Lovable results page: score, intensity badge, synthesis, per-technique cards      | ✅     |
 
 ### P2 — Stretch goals
 
-| # | Task |
-|---|---|
-| P2-1 | URL scraping via n8n HTTP node (JS-light pages only) |
-| P2-2 | "Copy report" button on results page |
-| P2-3 | Retry logic on LLM call failure |
-| P2-4 | Lighthouse accessibility audit pass (score 90+) |
-| P2-5 | Dropshipping score (AliExpress price comparison) |
+| #    | Task                                                            | Done? |
+| ---- | --------------------------------------------------------------- | ----- |
+| P2-1 | Jina scraping on JS-heavy pages                                 | ✅     |
+| P2-2 | Blocked-page failsafe (paste fallback)                          | ✅     |
+| P2-3 | Robust JSON parser (markdown fences + schema validation)        | ✅     |
+| P2-4 | "Copy report" button on results page                            | ☐     |
+| P2-5 | Lighthouse accessibility audit pass (score 90+)                 | ☐     |
+| P2-6 | Dropshipping score (AliExpress price comparison)                | ☐     |
 
 ---
 
 ## 14. Manipulation Taxonomy
 
-*Stored in Airtable — table: `Manipulation_Taxonomy` — 6 columns: Nom / Définition / Mécanisme / Signaux_textuels / Exemple / Suggestion_réponse*
+*Source of truth in Airtable — table `Manipulation_Taxonomy`, 6 columns: Nom / Définition / Mécanisme / Signaux_textuels / Exemple / Suggestion_réponse. The table is embedded (OpenAI) and indexed into a Supabase vector store, which the agent queries via RAG at analysis time.*
 
 ### Interpersonal techniques (12)
 
-| # | Technique | Core signal |
-|---|---|---|
-| 01 | **Fausse urgence** | Artificial time pressure to prevent reflection |
-| 02 | **Culpabilisation** | Attributing responsibility for a negative situation to create moral debt |
-| 03 | **DARVO** | Deny, Attack, Reverse Victim and Offender |
-| 04 | **Double bind** | Two options, both unfavourable — the illusion of choice |
-| 05 | **Inversion de responsabilité** | Returning the burden of proof to the person who was harmed |
-| 06 | **Ambiguïté délibérée** | Deliberately vague formulation to preserve an exit |
-| 07 | **Appel à l'autorité implicite** | Unnamed authority invoked to inhibit contestation |
-| 08 | **Minimisation** | Reducing the legitimacy of a feeling to avoid addressing it |
-| 09 | **Gaslighting textuel** | Denying or rewriting past facts to create self-doubt |
-| 10 | **Flatterie instrumentale** | Targeted compliment before a request to create reciprocity obligation |
-| 11 | **Projection** | Attributing one's own behaviour or intentions to the other |
-| 12 | **Faux consensus** | Presenting a position as shared by a silent majority to isolate |
+| #  | Technique                        | Core signal                                                              |
+| --- | -------------------------------- | ------------------------------------------------------------------------ |
+| 01 | **Fausse urgence**               | Artificial time pressure to prevent reflection                           |
+| 02 | **Culpabilisation**              | Attributing responsibility for a negative situation to create moral debt |
+| 03 | **DARVO**                        | Deny, Attack, Reverse Victim and Offender                                |
+| 04 | **Double bind**                  | Two options, both unfavourable — the illusion of choice                  |
+| 05 | **Inversion de responsabilité**  | Returning the burden of proof to the person who was harmed               |
+| 06 | **Ambiguïté délibérée**          | Deliberately vague formulation to preserve an exit                       |
+| 07 | **Appel à l'autorité implicite** | Unnamed authority invoked to inhibit contestation                        |
+| 08 | **Minimisation**                 | Reducing the legitimacy of a feeling to avoid addressing it              |
+| 09 | **Gaslighting textuel**          | Denying or rewriting past facts to create self-doubt                     |
+| 10 | **Flatterie instrumentale**      | Targeted compliment before a request to create reciprocity obligation    |
+| 11 | **Projection**                   | Attributing one's own behaviour or intentions to the other               |
+| 12 | **Faux consensus**               | Presenting a position as shared by a silent majority to isolate          |
 
 ### Marketing / copywriting techniques (3)
 
-| # | Technique | Core signal |
-|---|---|---|
-| 13 | **Preuve sociale artificielle** | Unverifiable figures or testimonials to simulate crowd validation |
-| 14 | **Rareté artificielle** | False scarcity (stock, time) to trigger urgency |
-| 15 | **Ancrage de prix** | Crossed-out reference price to make the real price seem like a bargain |
+| #  | Technique                       | Core signal                                                            |
+| --- | ------------------------------- | ---------------------------------------------------------------------- |
+| 13 | **Preuve sociale artificielle** | Unverifiable figures or testimonials to simulate crowd validation      |
+| 14 | **Rareté artificielle**         | False scarcity (stock, time) to trigger urgency                        |
+| 15 | **Ancrage de prix**             | Crossed-out reference price to make the real price seem like a bargain |
 
 ### Dropshipping-specific techniques (3)
 
-| # | Technique | Core signal |
-|---|---|---|
-| 16 | **Faux témoignages** | Generic profile photos, grouped dates, uniformly perfect reviews |
-| 17 | **Badges de confiance factices** | Non-functional security logos and unverifiable certification labels |
+| #  | Technique                          | Core signal                                                            |
+| --- | ---------------------------------- | ---------------------------------------------------------------------- |
+| 16 | **Faux témoignages**               | Generic profile photos, grouped dates, uniformly perfect reviews       |
+| 17 | **Badges de confiance factices**   | Non-functional security logos and unverifiable certification labels    |
 | 18 | **Présentation produit générique** | Catalogue photos identical to AliExpress, auto-translated descriptions |
 
 ---
 
 ## 15. System Prompt
 
-### N8N prompt
+### Agent prompt (n8n)
+
+*Runs inside the LangChain Agent. The taxonomy is no longer pasted in full — the agent retrieves the relevant entries from the Supabase vector store tool, then analyses the text.*
+
 ```
 Tu es un analyste expert en rhétorique et psychologie de la persuasion.
 
 Ton rôle est d'analyser un texte ou le contenu d'une page web
 et d'identifier les techniques de manipulation présentes.
 
-Voici la taxonomie de référence :
-{{taxonomie_airtable}}
+Utilise l'outil de recherche (vector store Supabase) pour récupérer
+les techniques pertinentes de la taxonomie de référence avant d'analyser.
 
 INSTRUCTIONS :
 1. Lis attentivement le texte soumis.
@@ -446,10 +497,11 @@ NE PAS utiliser de balises markdown.
 Retourner uniquement le JSON brut.
 ```
 
-### Lovable prompt
+### Lovable prompt (frontend)
+
 ```
-Build a web app called ManipDetect — an AI-powered manipulation 
-detection tool that analyses text or landing page URLs and identifies 
+Build a web app called ManipDetect — an AI-powered manipulation
+detection tool that analyses text or landing page URLs and identifies
 rhetorical manipulation techniques used by the author.
 
 ---
@@ -471,8 +523,8 @@ Color palette:
   - Critical/systemic: #4A0A0A
 
 Typography: Inter or system-ui, clean and readable.
-Overall aesthetic: dark, serious, analytical — like a security 
-audit tool, not a cheerful SaaS. Think intelligence report, 
+Overall aesthetic: dark, serious, analytical — like a security
+audit tool, not a cheerful SaaS. Think intelligence report,
 not marketing tool.
 
 ---
@@ -492,7 +544,7 @@ Full-screen centered card on dark background.
 
 ### Header (always visible)
 - Logo: a magnifying glass icon + "ManipDetect" in bold
-- Tagline below: "Détectez ce qu'on vous dit vraiment." 
+- Tagline below: "Détectez ce qu'on vous dit vraiment."
   in muted text
 
 ### Input card
@@ -501,28 +553,28 @@ Title: "Analysez un texte ou une page web"
 Two input options with a visual toggle or tabs:
   TAB 1 — "Texte libre"
     Large textarea (min 6 rows), placeholder:
-    "Collez ici un email, un contrat, un message, 
+    "Collez ici un email, un contrat, un message,
      une description de formation..."
     Character counter showing X/4000 characters
-    
+  
   TAB 2 — "URL à analyser"
     Single text input, placeholder:
     "https://exemple.com/landing-page"
-    Small note below: "Fonctionne sur la plupart des 
+    Small note below: "Fonctionne sur la plupart des
     pages web publiques."
 
 Below both inputs:
   Primary CTA button: "Analyser maintenant →"
-  Full width, deep red background, white text, 
+  Full width, deep red background, white text,
   rounded corners, hover effect
 
 Below the button, small muted text:
-  "🔒 Aucun texte n'est conservé — analyse en session 
+  "🔒 Aucun texte n'est conservé — analyse en session
   uniquement. Conforme RGPD."
 
 ### Example test URLs section (collapsible)
-A small "Tester avec des exemples →" toggle that reveals 
-a grid of clickable URL chips. When clicked, the URL 
+A small "Tester avec des exemples →" toggle that reveals
+a grid of clickable URL chips. When clicked, the URL
 auto-fills the URL field. Organise them by category:
 
 Category "IA & Automatisation":
@@ -614,6 +666,12 @@ Expected response shape from n8n:
   "synthese": "Cette page combine plusieurs techniques..."
 }
 
+Note: the workflow auto-detects whether `content` is a URL (server-side
+regex), so `input_type` is informational only. When a page cannot be
+scraped (bot protection), the response may instead contain
+`needs_manual_input: true` with a message asking the user to paste the
+visible text — handle that case by showing the message, not an empty report.
+
 Handle errors gracefully:
 - Network error: show error card with retry button
 - Timeout (>30s): show timeout message
@@ -624,7 +682,7 @@ Handle errors gracefully:
 ## STATE 2 — RESULTS PAGE
 
 ### Back button
-Top left: "← Nouvelle analyse" — returns to input state 
+Top left: "← Nouvelle analyse" — returns to input state
 and clears everything
 
 ### Results header card
@@ -637,7 +695,7 @@ Dark card with:
       faible → green background, "⚡ Faible"
       moderee → yellow/amber background, "⚠️ Modérée"  
       elevee → red background, "🔴 Élevée"
-      systemique → dark red + pulsing border, 
+      systemique → dark red + pulsing border,
                    "🚨 Systémique"
     - If URL was analysed: show the URL in muted small text
 
@@ -675,12 +733,12 @@ Cards animate in one by one with a subtle fade-up.
 ### Empty state (if techniques array is empty)
 Green card:
   ✅ "Aucune technique de manipulation détectée"
-  "Ce contenu ne présente pas de signaux rhétoriques 
+  "Ce contenu ne présente pas de signaux rhétoriques
   problématiques identifiables."
 
 ### Footer of results
 Two elements:
-  Left: "⚠️ Cette analyse est générée par IA. 
+  Left: "⚠️ Cette analyse est générée par IA.
          Elle peut contenir des erreurs."
   Right: "Analyser un autre texte →" button
 
@@ -711,14 +769,14 @@ Two elements:
 
 - Use React with hooks (useState, useEffect)
 - No external routing needed — single page, two states
-- Store the webhook URL as a const at the top of the file 
+- Store the webhook URL as a const at the top of the file
   so it's easy to replace
-- The "Tester avec des exemples" section is a nice-to-have 
+- The "Tester avec des exemples" section is a nice-to-have
   but important for demo day — keep it
-- Add a small "?" tooltip on the intensity badge explaining 
+- Add a small "?" tooltip on the intensity badge explaining
   what each level means
-- Do not use any mock data — always call the real webhook. 
-  If the webhook is not configured, show a clear 
+- Do not use any mock data — always call the real webhook.
+  If the webhook is not configured, show a clear
   "Configuration requise" message instead of fake results.
 ```
 
@@ -726,16 +784,18 @@ Two elements:
 
 ## 16. Constraints
 
-- **Privacy:** no text is stored server-side — session only. Explicit RGPD mention in UI.
+- **Privacy:** no user input is stored server-side — session only. Explicit RGPD mention in UI.
 - **Scope of analysis:** the tool analyses text, never diagnoses the person who wrote it. No psychiatric or legal claims.
-- **No paid APIs at MVP:** AliExpress and WHOIS integrations deferred to V1
-- **Scraping limitations:** JS-heavy pages (Shopify, React SPAs) may not scrape cleanly via HTTP node — fallback to copy-paste instruction
-- **Token budget:** inputs truncated at 4,000 characters to control LLM cost and latency
-- **Language:** French-first for taxonomy and UI — English-language texts analysed but explanations returned in French at MVP
+- **Dual AI provider:** Claude (analysis) + OpenAI (embeddings) — two providers to monitor for cost, rate limits and DPAs.
+- **No paid e-commerce APIs at MVP:** AliExpress and WHOIS integrations deferred to V1.
+- **Scraping limitations:** Jina handles most public/JS pages, but Cloudflare *challenge* pages and hard captchas remain unreadable → the blocked-page failsafe asks the user to paste the visible text.
+- **Token budget:** inputs truncated at 4,000 characters to control LLM cost and latency.
+- **Language:** French-first for taxonomy and UI — English-language texts analysed but explanations returned in French at MVP.
 
 ---
 
 ## 17. Tests
+
 [Infopreneur website :](https://lacour-avocats.com/expertises/infoprenariat/)
 
 ### IA / Consultant IA / Automatisation
@@ -794,6 +854,7 @@ Two elements:
 ## 19. Future Evolution
 
 ### V1 — Dropshipping Detector (next sprint)
+
 - 3 additional taxonomy entries (#16 #17 #18)
 - AliExpress / Temu price comparison agent
 - Domain age check via WHOIS API
@@ -801,13 +862,16 @@ Two elements:
 - Verdict with direct link to source product
 
 ### V2 — Distribution
+
 - Browser extension: real-time analysis on any page
 - Public API for third-party integration (consumer protection media, legal firms)
 - PDF report export
 - Analysis history with user account
 
 ### V3 — Module Emprise & Violence Psychologique
+
 > ⚠️ Out of scope until the following conditions are met:
+>
 > - Partnership with mental health professionals and associations (3919, France Victimes)
 > - GDPR Article 9 compliance (sensitive health data)
 > - Systematic orientation protocol toward real support resources
@@ -815,26 +879,10 @@ Two elements:
 > - Clinical validation of the pattern detection model
 
 *This module will not be built without these conditions. Rigour is the condition of its value.*
-<!--
-INTÉGRATION
------------
-À coller dans ManipDetect_PRD.md, à l'intérieur de la section
-"## 19. Future Evolution", après le bloc "### V3 — Module Emprise...".
-Style aligné sur le reste du PRD (structure EN, termes métier FR, tables GitHub).
-Pensez aussi aux 3 petites mises à jour suggérées tout en bas de ce fichier.
--->
 
 ### V4 — Trust & Value Score (*Indice de Valeur Potentielle*)
 
-ManipDetect today answers a single question: *is this text manipulative?* But
-manipulation intensity alone is not a verdict on the **worth of the offer**. An
-aggressive sales page can sit on top of a genuinely serious product, and a calm,
-"clean" page can hide an empty one. Detecting rhetoric without weighing substance
-risks flagging good offers and clearing hollow ones.
-
-This evolution adds a **second, orthogonal axis**: a Trust / Potential-Value
-Score that runs in parallel to the manipulation score and is built from three
-indices.
+ManipDetect today answers a single question: *is this text manipulative?* But manipulation intensity alone is not a verdict on the **worth of the offer**. An aggressive sales page can sit on top of a genuinely serious product, and a calm, "clean" page can hide an empty one. This evolution adds a **second, orthogonal axis** — a Trust / Potential-Value Score running in parallel to the manipulation score — built from three indices.
 
 #### 1. Structural Transparency Index
 
@@ -850,8 +898,7 @@ The baseline — the more transparent the offer, the more likely it is to be ser
 
 #### 2. Verifiable Social Proof Index
 
-Separate *surface* social proof (media logos, vague numbers) from proof that can
-actually be checked.
+Separate *surface* social proof (media logos, vague numbers) from proof that can actually be checked.
 
 | Criterion                | Weight     | What to look for                                                                          |
 | ------------------------ | ---------- | ----------------------------------------------------------------------------------------- |
@@ -862,8 +909,7 @@ actually be checked.
 
 #### 3. Substance vs. Promise Index
 
-The core of the evolution: quantify the **gap between what is promised and what is
-demonstrable**.
+The core of the evolution: quantify the **gap between what is promised and what is demonstrable**.
 
 | Criterion                  | Weight     | What to look for                                                                                         |
 | -------------------------- | ---------- | -------------------------------------------------------------------------------------------------------- |
@@ -874,46 +920,34 @@ demonstrable**.
 
 #### Interpretation — the two-axis matrix
 
-Crossing the manipulation score with the value score turns a single number into an
-actual verdict:
+Crossing the manipulation score with the value score turns a single number into an actual verdict:
 
 | Manipulation \ Value | **Low value**                       | **High value**                                  |
 | -------------------- | ----------------------------------- | ----------------------------------------------- |
 | **High manipulation**| 🚨 Red alert — predatory offer      | Aggressive marketing on a genuinely solid product |
 | **Low manipulation** | Bland / empty offer                 | ✅ Trustworthy                                  |
 
-This is the headline output: *high manipulation + low value* is the case the tool
-exists to catch; *high manipulation + high value* protects the user from dismissing
-a good product just because the copy is loud.
+*High manipulation + low value* is the case the tool exists to catch; *high manipulation + high value* protects the user from dismissing a good product just because the copy is loud.
 
 #### Technical implementation
 
-This axis is a second branch alongside the manipulation LLM step (the same pattern
-as the V1 dropshipping branch), merged into a combined report:
+A second branch alongside the manipulation agent step (same pattern as the V1 dropshipping branch), merged into a combined report:
 
 - **Targeted scraping** — fetch third-party reviews (Trustpilot), legal notices, and the curriculum page.
-- **Semantic analysis** — extend the existing LLM step to tag each sentence as *promise* vs. *content*, then compute the ratio.
-- **Data cross-referencing** — verify the trainer on LinkedIn, cross the domain/company name against public registries (INSEE / SIRENE), and reuse the WHOIS domain-age check already planned for V1.
+- **Semantic analysis** — extend the agent step to tag each sentence as *promise* vs. *content*, then compute the ratio.
+- **Data cross-referencing** — verify the trainer on LinkedIn, cross the domain/company name against public registries (INSEE / SIRENE), reuse the WHOIS domain-age check planned for V1.
 
-**Schema impact:** add an optional `valeur` block to the webhook response
-(`transparence`, `preuve_sociale`, `substance`, `score_confiance`, `verdict`)
-next to the existing `score_global` / `techniques` / `synthese`, so the front can
-render the two-axis verdict without breaking the current contract.
+**Schema impact:** add an optional `valeur` block to the webhook response (`transparence`, `preuve_sociale`, `substance`, `score_confiance`, `verdict`) next to the existing `score_global` / `techniques` / `synthese`, so the front renders the two-axis verdict without breaking the current contract.
 
 #### Worked example (illustrative) — DecisionIA
 
-Applying the rubric to one of the test URLs, to show how the score reads. *Figures
-are illustrative and would be confirmed by the scraping/cross-referencing layer above.*
+Applying the rubric to one of the test URLs, to show how the score reads. *Figures are illustrative and would be confirmed by the scraping/cross-referencing layer above.*
 
 - **Structural Transparency** — trainer identified, price publicly displayed, module-level curriculum, accessible legal notices → **High**
 - **Verifiable Social Proof** — visible community (YouTube, public Slack), findable reviews; on-page testimonials less nominative → **Medium–High**
 - **Substance vs. Promise** — precise skills taught (posture, sales, legal), an entrepreneurial track record and active free content, revenue not derived solely from the training → **High**
 
-**Verdict:** even if the page scores high on marketing intensity, the value axis is
-strong → it lands in the *"aggressive marketing, solid product"* quadrant rather
-than the red-alert quadrant.
-
----
+**Verdict:** even if the page scores high on marketing intensity, the value axis is strong → it lands in the *"aggressive marketing, solid product"* quadrant rather than the red-alert quadrant.
 
 <!--
 AUTRES MISES À JOUR SUGGÉRÉES (rapides, hors section 19)
@@ -934,12 +968,24 @@ AUTRES MISES À JOUR SUGGÉRÉES (rapides, hors section 19)
    produire une analyse sur une page de blocage.
 -->
 
+---
 
 ## 20. Learnings
 
+### Build learnings (technical)
+
+Concrete issues surfaced while wiring the agentic workflow — each one is now a documented guardrail:
+
+- **Field contract drift.** The type-detection IF node referenced a non-existent field (`$json.Text`) and compared it to the literal string `"url"` instead of detecting a URL pattern — so the branch was always false and Jina never ran. Fix: regex `^https?://` on `body.content`. *Lesson: align the field names and the detection logic across every node; do not test a value against a label.*
+- **Jina 400 (malformed request).** The scrape node sent an empty body on a GET request. Removing the body (and trimming the URL against stray whitespace) fixed it. *Lesson: a "Bad Request" is usually the request shape, not the target.*
+- **Hard-coded node name broke the parser.** "Parse JSON from AI Agent" referenced the agent by name (`'AI Agent'`); renaming the node silently sent every run to the fallback. Fix: read the parser's **direct input** (`$input`) instead. *Lesson: avoid name-coupling between nodes.*
+- **Garbage-in, confident-out.** Scraped Cloudflare/verification pages were analysed as if they were real content, producing a plausible but meaningless report. Fix: a blocked-page failsafe that detects challenge signatures / too-short output and asks the user to paste the text. *Lesson: for a trust tool, a wrong-but-confident answer is the worst outcome — fail loud, not silent.*
+- **Architecture shift.** Moved from "stuff the taxonomy into the prompt" to **RAG retrieval** over a Supabase vector store, and from **Softr to Lovable** for the frontend — more control over the report UI and the API call.
+
+### Demo-day reflection
+
 *To be completed after Le Wagon demo day — June 5, 2026.*
 
-*On June 4, 2026*
 - [x] What unexpected challenges did you face, and how did you adapt?
       
 *n8n workflow using Airtable database as memory took 1:53 to 2:35 as execution time, too much for a user.
@@ -968,6 +1014,4 @@ Nevertheless, using Lovable, Claude, Deepseek, Cursor, N8N chatbot helped a lot.
 [LinkedIn](https://linkedin.com/in/caroline-tith) · [Email](mailto:caroline.tith@hotmail.com)
 
 *ManipDetect — Le Wagon, AI Product Builder batch#1 — June 2026*
-
----
 
