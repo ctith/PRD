@@ -109,7 +109,7 @@ For e-commerce: transform "I'm not sure I trust this site" into "this product is
 
 ## 6. Solution Concept
 
-### MVP (shipped — Le Wagon)
+### MVP ([shipped](https://manipdetect.lovable.app/))
 
 The user pastes a text **or** submits a URL in the Lovable web app. The n8n agent then:
 
@@ -617,39 +617,7 @@ A small "Tester avec des exemples →" toggle that reveals
 a grid of clickable URL chips. When clicked, the URL
 auto-fills the URL field. Organise them by category:
 
-Category "IA & Automatisation":
-- DecisionIA: https://decisionia.com/bootcamp-consultant-ia-430449/
-- Revolia: https://formation.revolia.pro/inscription-masterclass-ia-consultant
-- Mastery IA: https://www.mastery-ia-pro.fr/sommet?el=wc&utm_source=wc
-- Catalyst Academy: https://catalystacademy.ai
-- ProActive Academy: https://proactiveacademy.fr/lp-ia-generative/
-- Success IA: https://www.success-ia-academy.com/
-- Mastery DDA: https://www.mastery-dda-ias.com/
-- Mister IA: https://www.mister-ia.com/formations-particuliers
-- NAIO Agency: https://inscription.naiomagency.com/aut
-- SMS AI System: https://book.flexxable.com/optin?utm_source=SCALING
-
-Category "Business & Coaching":
-- Envergure: https://go.envergure-media.com/recrutement
-- Alegria: https://www.alegria.group/
-- BryanRGT: https://www.bryanrgt-coaching.com/webinaire-fb-3
-- Kevin Hanot: https://www.kevinhanot.com/
-- Jodie Cavalie: https://academy.jodycavalie.com/
-- Richissime: https://coachings.richissime.net/lm/roadmap-personnalisee/
-- Amal Castel: https://www.academiepsr.com/
-- Boring Business: https://www.boringbusiness.fr/
-
-Category "Finance & Trading":
-- Paradox Mastermind: https://www.paradox-mastermind.com/live
-- Equity Mastermind: https://www.equitymastermind.fr/
-- Tom Crosshill: https://www.indexmasterclass.com/webinar-registration
-
-Category "Immobilier":
-- KretzClub: https://www.kretzclub.com/landing-page
-
-Category "Outils IA":
-- MyKreator: https://mykreator.ai/acces
-- Hyperentrepreneur: https://hyperentrepreneur.ai/70-ai-specialists-for-claude
+*list of URLs*
 
 ---
 
@@ -838,44 +806,7 @@ Two elements:
 
 [Infopreneur website :](https://lacour-avocats.com/expertises/infoprenariat/)
 
-### IA / Consultant IA / Automatisation
-
-- [DecisionIA](https://decisionia.com/bootcamp-consultant-ia-430449/)
-- [Revolia](https://formation.revolia.pro/inscription-masterclass-ia-consultant)
-- [Mastery IA pro](https://www.mastery-ia-pro.fr/sommet?el=wc&utm_source=wc)
-- [Catalystacademy](https://catalystacademy.ai)
-- [ProActive academy](https://proactiveacademy.fr/lp-ia-generative/)
-- [Success IA academy](https://www.success-ia-academy.com/)
-- [Mastery DDA IAS](https://www.mastery-dda-ias.com/)
-- [Mister IA](https://www.mister-ia.com/formations-particuliers)
-- [NAIO agency](https://inscription.naiomagency.com/aut)
-- [SMS AI System](https://book.flexxable.com/optin?utm_source=SCALING)
-
-### Business / Marketing / Coaching
-
-- [Envergure](https://go.envergure-media.com/recrutement)
-- [Alegria](https://www.alegria.group/)
-- [BryanRGT](https://www.bryanrgt-coaching.com/webinaire-fb-3)
-- [Kevin Hanot](https://www.kevinhanot.com/)
-- [Jodie Cavalie](https://academy.jodycavalie.com/)
-- [Richissime](https://coachings.richissime.net/lm/roadmap-personnalisee/)
-- [Amal Castel](https://www.academiepsr.com/)
-- [Boring business](https://www.boringbusiness.fr/)
-
-### Finance / Trading / Reprise d'entreprise
-
-- [ParadoxMastermind](https://www.paradox-mastermind.com/live)
-- [Equity mastermind](https://www.equitymastermind.fr/)
-- [Tom Crosshill](https://www.indexmasterclass.com/webinar-registration)
-
-### Immobilier
-
-- [KretzClub](https://www.kretzclub.com/landing-page)
-
-### Outils / Produits IA
-
-- [MyKreator](https://mykreator.ai/acces)
-- [Hyperentrepreneur](https://hyperentrepreneur.ai/70-ai-specialists-for-claude)
+*List of URLs, not mentionned here*
 
 ---
 
@@ -884,7 +815,7 @@ Two elements:
 - Audio or voice transcription analysis
 - Direct integration with email clients or messaging apps
 - Psychological diagnosis of the text's author
-- **Module emprise / violence psychologique** — see Future Evolution
+- Detect psychological abuse and violence through a reported conversation — see Future Evolution
 - "Write a manipulative message" mode — intentionally excluded
 - Multi-language UI at MVP
 - User accounts and analysis history
@@ -908,7 +839,7 @@ Two elements:
 - PDF report export
 - Analysis history with user account
 
-### V3 — Module Emprise & Violence Psychologique
+### V3 — Psychological abuse and violence detection
 
 > ⚠️ Out of scope until the following conditions are met:
 >
